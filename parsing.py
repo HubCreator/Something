@@ -28,3 +28,4 @@ class Parsing():
         for i in range(0, len(self.result), 1):
             print(i + 1, " 번째 >> ", self.result[i]["form"])
             
+        f.close()

@@ -1,6 +1,7 @@
+from PyQt5 import QtWidgets
 from parsing import Parsing
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QAction, QComboBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
     def __init__(self):                         # 생성자
@@ -67,59 +68,64 @@ class Sub(QWidget):
         self.setLayout(self.vb)
 
         self.hbTop = QHBoxLayout()
-        self.hbMid = QVBoxLayout()
-        self.hbMid_search = QHBoxLayout()
-        self.hbBot = QHBoxLayout()
+        self.hbMid = QHBoxLayout()
+        self.hbBot = QVBoxLayout()
+        self.hbBot_option = QHBoxLayout()
+        self.hbBot_input = QHBoxLayout()
 
         self.vb.addLayout(self.hbTop)
         self.vb.addLayout(self.hbMid)
         self.vb.addStretch()
+        self.hbBot.addLayout(self.hbBot_option)
+        self.hbBot.addLayout(self.hbBot_input)
         self.vb.addLayout(self.hbBot)
 
         self.lbl = QLabel("검색할 어절을 입력하세요")
+        self.createTable()
+        # self.option = QLabel("10", self)
         self.ln = QLineEdit()           # input words
         self.btn1 = QPushButton("검색")
-        self.btn2 = QPushButton("지우기")
-        self.btn3 = QPushButton("출력하고 지우기")
 
-        self.createTable()
+        combo = QComboBox(self)
+        combo.addItem("10")
+        combo.addItem("15")
+        combo.addItem("20")
+        combo.addItem("25")
+        combo.addItem("30")
         
         self.hbTop.addWidget(self.lbl)
         self.hbMid.addWidget(self.table)
 
-        self.hbMid_search.addWidget(self.ln)
-        self.hbMid_search.addWidget(self.btn1)
+        self.hbBot_option.addWidget(combo)
+        self.hbBot_input.addWidget(self.ln)
+        self.hbBot_input.addWidget(self.btn1)
 
-        self.hbMid.addLayout(self.hbMid_search)
-
-        self.hbBot.addWidget(self.btn2)
-        self.hbBot.addStretch()
-        self.hbBot.addWidget(self.btn3)
+        # self.hbMid.addLayout(self.hbMid_search)
 
         self.btn1.clicked.connect(self.prt_line)
-        self.btn2.clicked.connect(self.del_line)
-        self.btn3.clicked.connect(self.prt_del)
 
     def prt_line(self):
         try:
             contents = Parsing(self.ln.text())
             for r in range(self.rowSize):
-                self.table.setItem(r, 0, QTableWidgetItem(contents.result[r]["form"]))
+                self.table.setItem(r+1, 1, QTableWidgetItem(contents.result[r]["form"]))
         except e:
             for r in range(self.rowSize):
                 for c in range(self.colSize):
                     self.table.setItem(r, c, QTableWidgetItem(""))
 
-    def del_line(self):
-        self.ln.clear()
-
-    def prt_del(self):
-        self.prt_line()
-        self.del_line()
-
     def createTable(self):
         self.table = QTableWidget()
+
         self.table.setRowCount(self.rowSize)
         self.table.setColumnCount(self.colSize)
-        self.table.setHorizontalHeaderLabels(('해당 문장', '출처'))
-        
+
+        category = ["해당 문장", "출처"]
+        category_comboBox = QComboBox(self)
+        for i in range(0, len(category), 1):
+            category_comboBox.addItem(category[i])
+
+        for j in range(1, len(category), 1):
+            # self.table.setItem(0, i, QTableWidgetItem(str(j)))
+            self.table.setCellWidget(0, j, category_comboBox)
+        # self.table.setHorizontalHeaderLabels(('해당 문장', '출처'))
