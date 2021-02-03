@@ -4,13 +4,13 @@ import json
 
 class Parsing():
     def __init__(self, keyword):
+        self.result = []  # 리스트
         self.initParsing(keyword)
+        
     def initParsing(self, keyword):
-        with open("languageData/SXNE1902007240.json") as f:
+        with open("languageData/SXNE1902007240.json") as f: # 딕셔너리
             data = json.load(f)
 
-        result = []  # 리스트
-        #keyword = input("찾고자 하는 어절을 입력하세요 >> ")
         keyword = str(keyword)
         doc_data = data["document"]
 
@@ -21,9 +21,10 @@ class Parsing():
                 for word in words:
                     value = word["form"]
                     if value == keyword:
-                        result.append(lines)
+                        self.result.append(lines)
 
 
-        print(len(result))
-        print(result[0])
-        print(result[1])
+        # print(len(result))
+        for i in range(0, len(self.result), 1):
+            print(i + 1, " 번째 >> ", self.result[i]["form"])
+            

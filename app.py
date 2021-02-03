@@ -1,6 +1,6 @@
 from parsing import Parsing
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
     def __init__(self):                         # 생성자
@@ -10,7 +10,7 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         self.initUI()
         
     def initUI(self):
-        self.setGeometry(700, 300, 500, 400)    # 창이 뜨는 위치와 크기 조절
+        self.setGeometry(600, 300, 800, 600)    # 창이 뜨는 위치와 크기 조절
         self.setWindowTitle('말뭉치 단어 찾기 프로그램')
 
         self.statusBar()                        # 상태 표시줄 생성
@@ -49,7 +49,7 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         menuBar_file.addAction(menuBar_file_exit)          # 메뉴 등록
     
     def closeEvent(self, QCloseEvent):
-        answer = QMessageBox.question(self, '종료 확인', '종료하시겠습니까??', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        answer = QMessageBox.question(self, '종료 확인', '종료하시겠습니까??', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if answer == QMessageBox.Yes:
             QCloseEvent.accept()
         elif answer == QMessageBox.No:
@@ -58,11 +58,19 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
 class Sub(QWidget):
     def __init__(self):
         super(Sub, self).__init__()
+        self.rowSize = 2
+        self.colSize = 2
+        self.initLayout()
+
+    def initLayout(self):
         self.vb = QVBoxLayout()
         self.setLayout(self.vb)
+
         self.hbTop = QHBoxLayout()
-        self.hbMid = QHBoxLayout()
+        self.hbMid = QVBoxLayout()
+        self.hbMid_search = QHBoxLayout()
         self.hbBot = QHBoxLayout()
+
         self.vb.addLayout(self.hbTop)
         self.vb.addLayout(self.hbMid)
         self.vb.addStretch()
@@ -70,13 +78,20 @@ class Sub(QWidget):
 
         self.lbl = QLabel("검색할 어절을 입력하세요")
         self.ln = QLineEdit()           # input words
-        self.btn1 = QPushButton("출력")
+        self.btn1 = QPushButton("검색")
         self.btn2 = QPushButton("지우기")
         self.btn3 = QPushButton("출력하고 지우기")
 
+        self.createTable()
+        
         self.hbTop.addWidget(self.lbl)
-        self.hbMid.addWidget(self.ln)
-        self.hbMid.addWidget(self.btn1)
+        self.hbMid.addWidget(self.table)
+
+        self.hbMid_search.addWidget(self.ln)
+        self.hbMid_search.addWidget(self.btn1)
+
+        self.hbMid.addLayout(self.hbMid_search)
+
         self.hbBot.addWidget(self.btn2)
         self.hbBot.addStretch()
         self.hbBot.addWidget(self.btn3)
@@ -86,8 +101,14 @@ class Sub(QWidget):
         self.btn3.clicked.connect(self.prt_del)
 
     def prt_line(self):
-        Parsing(self.ln.text())
-        print(self.ln.text())
+        try:
+            contents = Parsing(self.ln.text())
+            for r in range(self.rowSize):
+                self.table.setItem(r, 0, QTableWidgetItem(contents.result[r]["form"]))
+        except e:
+            for r in range(self.rowSize):
+                for c in range(self.colSize):
+                    self.table.setItem(r, c, QTableWidgetItem(""))
 
     def del_line(self):
         self.ln.clear()
@@ -95,3 +116,10 @@ class Sub(QWidget):
     def prt_del(self):
         self.prt_line()
         self.del_line()
+
+    def createTable(self):
+        self.table = QTableWidget()
+        self.table.setRowCount(self.rowSize)
+        self.table.setColumnCount(self.colSize)
+        self.table.setHorizontalHeaderLabels(('해당 문장', '출처'))
+        
