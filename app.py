@@ -1,3 +1,4 @@
+from parsing import Parsing
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QAction, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QVBoxLayout, QWidget
 
@@ -67,8 +68,8 @@ class Sub(QWidget):
         self.vb.addStretch()
         self.vb.addLayout(self.hbBot)
 
-        self.lbl = QLabel("박스 레이아웃 예제")
-        self.ln = QLineEdit()
+        self.lbl = QLabel("검색할 어절을 입력하세요")
+        self.ln = QLineEdit()           # input words
         self.btn1 = QPushButton("출력")
         self.btn2 = QPushButton("지우기")
         self.btn3 = QPushButton("출력하고 지우기")
@@ -85,6 +86,7 @@ class Sub(QWidget):
         self.btn3.clicked.connect(self.prt_del)
 
     def prt_line(self):
+        Parsing(self.ln.text())
         print(self.ln.text())
 
     def del_line(self):
