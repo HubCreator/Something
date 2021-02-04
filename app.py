@@ -1,7 +1,11 @@
+from typing import Collection
 from PyQt5 import QtWidgets
 from parsing import Parsing
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QAction, QComboBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+
+# ROW_SIZE = 2
+# COL_SIZE = 5
 
 class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
     def __init__(self):                         # 생성자
@@ -56,11 +60,14 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         elif answer == QMessageBox.No:
             QCloseEvent.ignore()
 
+COL_SIZE = 5
+ROW_SIZE = 3
+
 class Sub(QWidget):
     def __init__(self):
         super(Sub, self).__init__()
-        self.rowSize = 2
-        self.colSize = 2
+        # self.colSize = COL_SIZE    # 행
+        # self.rowSize = ROW_SIZE    # 열 
         self.initLayout()
 
     def initLayout(self):
@@ -102,30 +109,51 @@ class Sub(QWidget):
 
         # self.hbMid.addLayout(self.hbMid_search)
 
+        combo.activated[str].connect(self.onActivated)
         self.btn1.clicked.connect(self.prt_line)
 
+    def onActivated(self, text):
+        self.hbMid.removeWidget(self.table)
+        self.table.deleteLater()
+        self.table = None
+
+        global ROW_SIZE
+        ROW_SIZE = int(text)
+        self.createTable()
+        self.hbMid.addWidget(self.table)
+
+
+    # def clearLayout(self, layout):
+    #     while layout.count():
+    #         child = layout.takeAt(0)
+    #         if child.widget():
+    #             child.widget().deleteLater()
+
     def prt_line(self):
+        global ROW_SIZE
+        global COL_SIZE
         try:
             contents = Parsing(self.ln.text())
-            for r in range(self.rowSize):
+            for r in range(ROW_SIZE):
                 self.table.setItem(r+1, 1, QTableWidgetItem(contents.result[r]["form"]))
         except e:
-            for r in range(self.rowSize):
+            for r in range(COL_SIZE):
                 for c in range(self.colSize):
                     self.table.setItem(r, c, QTableWidgetItem(""))
 
     def createTable(self):
+        global ROW_SIZE
+        global COL_SIZE
         self.table = QTableWidget()
 
-        self.table.setRowCount(self.rowSize)
-        self.table.setColumnCount(self.colSize)
+        self.table.setRowCount(ROW_SIZE)
+        self.table.setColumnCount(COL_SIZE)
 
-        category = ["해당 문장", "출처"]
-        category_comboBox = QComboBox(self)
-        for i in range(0, len(category), 1):
-            category_comboBox.addItem(category[i])
-
-        for j in range(1, len(category), 1):
+        category = [" ", "해당 문장", "출처"]
+        
+        for j in range(0, COL_SIZE, 1):
             # self.table.setItem(0, i, QTableWidgetItem(str(j)))
+            category_comboBox = QComboBox(self)
+            for i in range(0, len(category), 1):
+                category_comboBox.addItem(category[i])
             self.table.setCellWidget(0, j, category_comboBox)
-        # self.table.setHorizontalHeaderLabels(('해당 문장', '출처'))
