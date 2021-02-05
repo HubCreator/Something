@@ -1,11 +1,13 @@
 from typing import Collection
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QCloseEvent
 from parsing import Parsing
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QAction, QComboBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PyQt5.QtCore import  QCoreApplication
+from PyQt5.QtWidgets import QAction, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 # ROW_SIZE = 2
 # COL_SIZE = 5
+
 
 class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
     def __init__(self):                         # 생성자
@@ -60,14 +62,31 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         elif answer == QMessageBox.No:
             QCloseEvent.ignore()
 
+    
 COL_SIZE = 5
-ROW_SIZE = 3
+ROW_SIZE = 10
+CURRENT_CONTENTS = None
+SELECTED_CATEGORIES = []
+
+class OptionWindow(QWidget):
+    def __init__(self):
+        super(OptionWindow,self).__init__()
+        self.title = '검색 설정'
+        self.left = 20
+        self.top = 20
+        self.height = 600
+        self.width = 800
+        self.initUI()
+        
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.show()
 
 class Sub(QWidget):
     def __init__(self):
         super(Sub, self).__init__()
-        # self.colSize = COL_SIZE    # 행
-        # self.rowSize = ROW_SIZE    # 열 
+        
         self.initLayout()
 
     def initLayout(self):
@@ -78,12 +97,16 @@ class Sub(QWidget):
         self.hbMid = QHBoxLayout()
         self.hbBot = QVBoxLayout()
         self.hbBot_option = QHBoxLayout()
+        self.hbBot_option_row = QHBoxLayout()
+        self.hbBot_option_category = QHBoxLayout()
         self.hbBot_input = QHBoxLayout()
 
         self.vb.addLayout(self.hbTop)
         self.vb.addLayout(self.hbMid)
-        self.vb.addStretch()
         self.hbBot.addLayout(self.hbBot_option)
+        self.hbBot_option.addLayout(self.hbBot_option_row)
+        self.hbBot_option.addStretch()
+        self.hbBot_option.addLayout(self.hbBot_option_category)
         self.hbBot.addLayout(self.hbBot_input)
         self.vb.addLayout(self.hbBot)
 
@@ -93,67 +116,105 @@ class Sub(QWidget):
         self.ln = QLineEdit()           # input words
         self.btn1 = QPushButton("검색")
 
-        combo = QComboBox(self)
-        combo.addItem("10")
-        combo.addItem("15")
-        combo.addItem("20")
-        combo.addItem("25")
-        combo.addItem("30")
-        
+        self.option_row = QComboBox(self)
+        self.option_row.addItem("10")
+        self.option_row.addItem("15")
+        self.option_row.addItem("20")
+        self.option_row.addItem("25")
+        self.option_row.addItem("30")
+
+        self.category_checkBox1 = QCheckBox("단어", self)
+        self.category_checkBox2 = QCheckBox("문장", self)
+        self.category_checkBox3 = QCheckBox("어절", self)
+        self.category_checkBox4 = QCheckBox("출전", self)
+
+        # category_checkBox1.setObjectName("단어")
+
         self.hbTop.addWidget(self.lbl)
         self.hbMid.addWidget(self.table)
 
-        self.hbBot_option.addWidget(combo)
+        self.hbBot_option_row.addWidget(self.option_row)
+        self.hbBot_option_category.addWidget(self.category_checkBox1)
+        self.hbBot_option_category.addWidget(self.category_checkBox2)
+        self.hbBot_option_category.addWidget(self.category_checkBox3)
+        self.hbBot_option_category.addWidget(self.category_checkBox4)
         self.hbBot_input.addWidget(self.ln)
         self.hbBot_input.addWidget(self.btn1)
 
         # self.hbMid.addLayout(self.hbMid_search)
 
-        combo.activated[str].connect(self.onActivated)
-        self.btn1.clicked.connect(self.prt_line)
+        self.option_row.activated[str].connect(self.onOptionRowActivated)
+        self.btn1.clicked.connect(self.searchData)
 
-    def onActivated(self, text):
+    def onOptionRowActivated(self, text):
+        global ROW_SIZE
+
         self.hbMid.removeWidget(self.table)
         self.table.deleteLater()
         self.table = None
 
-        global ROW_SIZE
         ROW_SIZE = int(text)
         self.createTable()
         self.hbMid.addWidget(self.table)
 
 
-    # def clearLayout(self, layout):
-    #     while layout.count():
-    #         child = layout.takeAt(0)
-    #         if child.widget():
-    #             child.widget().deleteLater()
-
-    def prt_line(self):
+    def searchData(self):
         global ROW_SIZE
         global COL_SIZE
+        global CURRENT_CONTENTS # Parsed data
+        global SELECTED_CATEGORIES
+
         try:
-            contents = Parsing(self.ln.text())
+            CURRENT_CONTENTS = Parsing(self.ln.text())
+            # todo : 카테고리 확인 절차
+
             for r in range(ROW_SIZE):
-                self.table.setItem(r+1, 1, QTableWidgetItem(contents.result[r]["form"]))
+                tmp = str(SELECTED_CATEGORIES[r])
+                if tmp == " ":
+                    self.table.setItem(r + 1, 0, QTableWidgetItem(""))
+                elif tmp == "해당 단어":
+                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"]))
+                elif tmp == "해당 문장":
+                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
+                elif tmp == "어절 검색":
+                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
+                elif tmp == "출전":
+                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
+
         except e:
-            for r in range(COL_SIZE):
-                for c in range(self.colSize):
+            for r in range(ROW_SIZE):
+                for c in range(COL_SIZE):
                     self.table.setItem(r, c, QTableWidgetItem(""))
 
     def createTable(self):
         global ROW_SIZE
         global COL_SIZE
+        global SELECTED_CATEGORIES
         self.table = QTableWidget()
 
         self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
 
-        category = [" ", "해당 문장", "출처"]
+        category = [" ", "해당 단어", "해당 문장", "어절 검색", "출전"]
         
+        # 카테고리를 콤보박스에 달기
         for j in range(0, COL_SIZE, 1):
             # self.table.setItem(0, i, QTableWidgetItem(str(j)))
-            category_comboBox = QComboBox(self)
+            self.category_comboBox = QComboBox(self)
             for i in range(0, len(category), 1):
-                category_comboBox.addItem(category[i])
-            self.table.setCellWidget(0, j, category_comboBox)
+                self.category_comboBox.addItem(category[i])
+            self.table.setCellWidget(0, j, self.category_comboBox)
+            self.category_comboBox.activated[str].connect(self.onCategoryComboBoxActivated) # 카테고리의 항목이 선택됐을 때
+        
+        # for j in range(0, COL_SIZE, 1):
+            # print(self.table.itemAt(0, j))
+            # SELECTED_CATEGORIES.append(self.table.itemAt(0, j))
+    
+    def onCategoryComboBoxActivated(self, text):
+        global SELECTED_CATEGORIES
+        global CURRENT_CONTENTS
+        value = str(text)
+        a = self.sender()   # 누가 눌렀냐 category_comboBox
+        # print(a.currentText())
+
+        SELECTED_CATEGORIES.append(a.currentText()) # 순서 상관 X
