@@ -1,12 +1,11 @@
-import os
 import numpy as np
 import json
 
 class Parsing():
     def __init__(self, keyword):
-        self.word_result = []           # 정확한 단어 검색 결과
-        self.includingWord_result = []  # 단어를 포함한 검색 결과
-        self.sentence_result = []
+        self.word_result = []           # 단어
+        self.soundBlock_result = []     # 어절
+        self.sentence_result = []       # 문장
         self.origin_result = []         # 출전
 
         self.initParsing(keyword)
@@ -16,6 +15,9 @@ class Parsing():
             data = json.load(f)
 
         keyword = str(keyword)
+
+        # for i in range(0, len(categories), 1):
+        #     if str(categories[i]) == "단어검색":
 
         # 키워드 체크
 
@@ -29,7 +31,10 @@ class Parsing():
                 for word in words:
                     value = word["form"]
                     if value == keyword:
-                        self.word_result.append(word)
+                        self.soundBlock_result.append(lines)         # 어절
+                        #self.sentence_result.append(page["form"])   # 문장
+                        #self.word_result.append(word) # 단어
+                        #self.origin_result.append(pages["metadata"]["title"])
 
 
         # print(len(result))

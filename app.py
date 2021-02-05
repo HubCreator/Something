@@ -1,8 +1,9 @@
-from typing import Collection
+from os import curdir, error
+from typing import Collection, Sequence
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QCloseEvent
 from parsing import Parsing
-from PyQt5.QtCore import  QCoreApplication
+from PyQt5.QtCore import  QCoreApplication, Qt
 from PyQt5.QtWidgets import QAction, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 # ROW_SIZE = 2
@@ -128,7 +129,7 @@ class Sub(QWidget):
         self.category_checkBox3 = QCheckBox("어절", self)
         self.category_checkBox4 = QCheckBox("출전", self)
 
-        # category_checkBox1.setObjectName("단어")
+        self.category_checkBox1.setObjectName("단어")
 
         self.hbTop.addWidget(self.lbl)
         self.hbMid.addWidget(self.table)
@@ -145,6 +146,23 @@ class Sub(QWidget):
 
         self.option_row.activated[str].connect(self.onOptionRowActivated)
         self.btn1.clicked.connect(self.searchData)
+        self.category_checkBox1.stateChanged.connect(self.onCheckBox1_checked)
+        self.category_checkBox2.stateChanged.connect(self.onCheckBox1_checked)
+        self.category_checkBox3.stateChanged.connect(self.onCheckBox1_checked)
+        self.category_checkBox4.stateChanged.connect(self.onCheckBox1_checked)
+
+    def onCheckBox1_checked(self, state):
+        global SELECTED_CATEGORIES
+        a = self.sender()
+        # print(a.text())
+        
+        if state == Qt.Checked:
+            SELECTED_CATEGORIES.append(a.text())
+        else:
+            SELECTED_CATEGORIES.remove(a.text())
+        
+        for i in  range(0, len(SELECTED_CATEGORIES), 1):
+            print(SELECTED_CATEGORIES[i])
 
     def onOptionRowActivated(self, text):
         global ROW_SIZE
@@ -164,24 +182,24 @@ class Sub(QWidget):
         global CURRENT_CONTENTS # Parsed data
         global SELECTED_CATEGORIES
 
+        CURRENT_CONTENTS = Parsing(self.ln.text())
         try:
-            CURRENT_CONTENTS = Parsing(self.ln.text())
             # todo : 카테고리 확인 절차
+            if '어절' in SELECTED_CATEGORIES:
+                for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                    self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.soundBlock_result[r]["form"]))
+                    # if tmp == " ":
+                    #     self.table.setItem(r + 1, 0, QTableWidgetItem(""))
+                    # elif tmp == "해당 단어":
+                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"]))
+                    # elif tmp == "해당 문장":
+                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
+                    # elif tmp == "어절 검색":
+                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
+                    # elif tmp == "출전":
+                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
 
-            for r in range(ROW_SIZE):
-                tmp = str(SELECTED_CATEGORIES[r])
-                if tmp == " ":
-                    self.table.setItem(r + 1, 0, QTableWidgetItem(""))
-                elif tmp == "해당 단어":
-                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"]))
-                elif tmp == "해당 문장":
-                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
-                elif tmp == "어절 검색":
-                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
-                elif tmp == "출전":
-                    self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
-
-        except e:
+        except error:
             for r in range(ROW_SIZE):
                 for c in range(COL_SIZE):
                     self.table.setItem(r, c, QTableWidgetItem(""))
@@ -195,26 +213,26 @@ class Sub(QWidget):
         self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
 
-        category = [" ", "해당 단어", "해당 문장", "어절 검색", "출전"]
+        # category = [" ", "해당 단어", "해당 문장", "어절 검색", "출전"]
         
         # 카테고리를 콤보박스에 달기
-        for j in range(0, COL_SIZE, 1):
-            # self.table.setItem(0, i, QTableWidgetItem(str(j)))
-            self.category_comboBox = QComboBox(self)
-            for i in range(0, len(category), 1):
-                self.category_comboBox.addItem(category[i])
-            self.table.setCellWidget(0, j, self.category_comboBox)
-            self.category_comboBox.activated[str].connect(self.onCategoryComboBoxActivated) # 카테고리의 항목이 선택됐을 때
+        # for j in range(0, COL_SIZE, 1):
+        #     # self.table.setItem(0, i, QTableWidgetItem(str(j)))
+        #     self.category_comboBox = QComboBox(self)
+        #     for i in range(0, len(category), 1):
+        #         self.category_comboBox.addItem(category[i])
+        #     self.table.setCellWidget(0, j, self.category_comboBox)
+        #     self.category_comboBox.activated[str].connect(self.onCategoryComboBoxActivated) # 카테고리의 항목이 선택됐을 때
         
         # for j in range(0, COL_SIZE, 1):
             # print(self.table.itemAt(0, j))
             # SELECTED_CATEGORIES.append(self.table.itemAt(0, j))
     
-    def onCategoryComboBoxActivated(self, text):
-        global SELECTED_CATEGORIES
-        global CURRENT_CONTENTS
-        value = str(text)
-        a = self.sender()   # 누가 눌렀냐 category_comboBox
-        # print(a.currentText())
+    # def onCategoryComboBoxActivated(self, text):
+    #     global SELECTED_CATEGORIES
+    #     global CURRENT_CONTENTS
+    #     value = str(text)
+    #     a = self.sender()   # 누가 눌렀냐 category_comboBox
+    #     # print(a.currentText())
 
-        SELECTED_CATEGORIES.append(a.currentText()) # 순서 상관 X
+    #     SELECTED_CATEGORIES.append(a.currentText()) # 순서 상관 X
