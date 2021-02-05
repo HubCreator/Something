@@ -161,8 +161,6 @@ class Sub(QWidget):
         else:
             SELECTED_CATEGORIES.remove(a.text())
         
-        for i in  range(0, len(SELECTED_CATEGORIES), 1):
-            print(SELECTED_CATEGORIES[i])
 
     def onOptionRowActivated(self, text):
         global ROW_SIZE
@@ -185,19 +183,12 @@ class Sub(QWidget):
         CURRENT_CONTENTS = Parsing(self.ln.text())
         try:
             # todo : 카테고리 확인 절차
-            if '어절' in SELECTED_CATEGORIES:
+            if '문장' in SELECTED_CATEGORIES:
                 for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
-                    self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.soundBlock_result[r]["form"]))
-                    # if tmp == " ":
-                    #     self.table.setItem(r + 1, 0, QTableWidgetItem(""))
-                    # elif tmp == "해당 단어":
-                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"]))
-                    # elif tmp == "해당 문장":
-                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
-                    # elif tmp == "어절 검색":
-                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
-                    # elif tmp == "출전":
-                    #     self.table.setItem(r+1, 0, QTableWidgetItem(CURRENT_CONTENTS.word_result[r]["form"])) # should change
+                    self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentence_result[r]["form"]))
+            if '출전' in SELECTED_CATEGORIES:
+                for r in range(ROW_SIZE):
+                    self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r]["metadata"]["title"]))
 
         except error:
             for r in range(ROW_SIZE):

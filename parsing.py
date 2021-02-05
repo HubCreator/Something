@@ -31,10 +31,10 @@ class Parsing():
                 for word in words:
                     value = word["form"]
                     if value == keyword:
-                        self.soundBlock_result.append(lines)         # 어절
-                        #self.sentence_result.append(page["form"])   # 문장
+                        self.sentence_result.append(lines)   # 문장
+                        self.origin_result.append(pages)
+                        # self.soundBlock_result.append(lines)         # 어절
                         #self.word_result.append(word) # 단어
-                        #self.origin_result.append(pages["metadata"]["title"])
 
 
         # print(len(result))
