@@ -68,6 +68,7 @@ COL_SIZE = 5
 ROW_SIZE = 10
 CURRENT_CONTENTS = None
 SELECTED_CATEGORIES = []
+# SELECTED_CATEGORIES = enumerate(WORD=0, SENTENCE=0, PHRASE=0, ORIGIN=0) # A=단어, B=문장, C=어절, D=출전
 
 class OptionWindow(QWidget):
     def __init__(self):
@@ -173,7 +174,6 @@ class Sub(QWidget):
         self.createTable()
         self.hbMid.addWidget(self.table)
 
-
     def searchData(self):
         global ROW_SIZE
         global COL_SIZE
@@ -181,15 +181,20 @@ class Sub(QWidget):
         global SELECTED_CATEGORIES
 
         CURRENT_CONTENTS = Parsing(self.ln.text())
+        
+        dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form"}
         try:
-            # todo : 카테고리 확인 절차
-            if '문장' in SELECTED_CATEGORIES:
+            for keywords in SELECTED_CATEGORIES:
                 for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
-                    self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentence_result[r]["form"]))
-            if '출전' in SELECTED_CATEGORIES:
-                for r in range(ROW_SIZE):
-                    self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r]["metadata"]["title"]))
-
+                    if keywords == "문장":
+                        key = dic_t[keywords]
+                        self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentence_result[r][key]))
+                    if keywords == "어절":
+                        key = dic_t[keywords]
+                        self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.soundBlock_result[r][key]))
+                    if keywords == "출전":
+                        key = dic_t[keywords]
+                        self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
         except error:
             for r in range(ROW_SIZE):
                 for c in range(COL_SIZE):
@@ -198,32 +203,7 @@ class Sub(QWidget):
     def createTable(self):
         global ROW_SIZE
         global COL_SIZE
-        global SELECTED_CATEGORIES
         self.table = QTableWidget()
 
         self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
-
-        # category = [" ", "해당 단어", "해당 문장", "어절 검색", "출전"]
-        
-        # 카테고리를 콤보박스에 달기
-        # for j in range(0, COL_SIZE, 1):
-        #     # self.table.setItem(0, i, QTableWidgetItem(str(j)))
-        #     self.category_comboBox = QComboBox(self)
-        #     for i in range(0, len(category), 1):
-        #         self.category_comboBox.addItem(category[i])
-        #     self.table.setCellWidget(0, j, self.category_comboBox)
-        #     self.category_comboBox.activated[str].connect(self.onCategoryComboBoxActivated) # 카테고리의 항목이 선택됐을 때
-        
-        # for j in range(0, COL_SIZE, 1):
-            # print(self.table.itemAt(0, j))
-            # SELECTED_CATEGORIES.append(self.table.itemAt(0, j))
-    
-    # def onCategoryComboBoxActivated(self, text):
-    #     global SELECTED_CATEGORIES
-    #     global CURRENT_CONTENTS
-    #     value = str(text)
-    #     a = self.sender()   # 누가 눌렀냐 category_comboBox
-    #     # print(a.currentText())
-
-    #     SELECTED_CATEGORIES.append(a.currentText()) # 순서 상관 X
