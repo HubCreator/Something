@@ -1,19 +1,14 @@
-from os import curdir, error
-from typing import Collection, Sequence
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QCloseEvent
-from parsing import Parsing
-from PyQt5.QtCore import  QCoreApplication, Qt
-from PyQt5.QtWidgets import QAction, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QMessageBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-
-# ROW_SIZE = 2
-# COL_SIZE = 5
-
+from layout import MyLayout
+# from typing import Collection, Sequence
+# from PyQt5 import QtWidgets
+from PyQt5.QtCore import  QCoreApplication
+from PyQt5.QtWidgets import QAction, QMainWindow, QMenu, QMessageBox
 
 class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
     def __init__(self):                         # 생성자
         super(MyApp, self).__init__()                      # 상위 객체 생성(QMainWindow 생성자 호출)
-        self.setCentralWidget(Sub())
+        self.setCentralWidget(MyLayout())
+        self.statusBar()                        # 상태 표시줄 생성
         
         self.initUI()
         
@@ -21,17 +16,9 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         self.setGeometry(600, 300, 800, 600)    # 창이 뜨는 위치와 크기 조절
         self.setWindowTitle('말뭉치 단어 찾기 프로그램')
 
-        self.statusBar()                        # 상태 표시줄 생성
         self.statusBar().showMessage('hello')
         
-        # btn = QPushButton('hi', self)
-        # btn.resize(btn.sizeHint())
-        # btn.setToolTip('tooltip')
-        # btn.move(70, 30)
-        # btn.clicked.connect(QCoreApplication.instance().quit) # QCoreApplication은 모든 이벤트에 대한 처리를 한다.
-
         self.makeMenuBar()
-        #self.initLayout()
 
         self.show()
 
@@ -62,148 +49,3 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
             QCloseEvent.accept()
         elif answer == QMessageBox.No:
             QCloseEvent.ignore()
-
-    
-COL_SIZE = 5
-ROW_SIZE = 10
-CURRENT_CONTENTS = None
-SELECTED_CATEGORIES = []
-# SELECTED_CATEGORIES = enumerate(WORD=0, SENTENCE=0, PHRASE=0, ORIGIN=0) # A=단어, B=문장, C=어절, D=출전
-
-class OptionWindow(QWidget):
-    def __init__(self):
-        super(OptionWindow,self).__init__()
-        self.title = '검색 설정'
-        self.left = 20
-        self.top = 20
-        self.height = 600
-        self.width = 800
-        self.initUI()
-        
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-        self.show()
-
-class Sub(QWidget):
-    def __init__(self):
-        super(Sub, self).__init__()
-        
-        self.initLayout()
-
-    def initLayout(self):
-        self.vb = QVBoxLayout()
-        self.setLayout(self.vb)
-
-        self.hbTop = QHBoxLayout()
-        self.hbMid = QHBoxLayout()
-        self.hbBot = QVBoxLayout()
-        self.hbBot_option = QHBoxLayout()
-        self.hbBot_option_row = QHBoxLayout()
-        self.hbBot_option_category = QHBoxLayout()
-        self.hbBot_input = QHBoxLayout()
-
-        self.vb.addLayout(self.hbTop)
-        self.vb.addLayout(self.hbMid)
-        self.hbBot.addLayout(self.hbBot_option)
-        self.hbBot_option.addLayout(self.hbBot_option_row)
-        self.hbBot_option.addStretch()
-        self.hbBot_option.addLayout(self.hbBot_option_category)
-        self.hbBot.addLayout(self.hbBot_input)
-        self.vb.addLayout(self.hbBot)
-
-        self.lbl = QLabel("검색할 어절을 입력하세요")
-        self.createTable()
-        # self.option = QLabel("10", self)
-        self.ln = QLineEdit()           # input words
-        self.btn1 = QPushButton("검색")
-
-        self.option_row = QComboBox(self)
-        self.option_row.addItem("10")
-        self.option_row.addItem("15")
-        self.option_row.addItem("20")
-        self.option_row.addItem("25")
-        self.option_row.addItem("30")
-
-        self.category_checkBox1 = QCheckBox("단어", self)
-        self.category_checkBox2 = QCheckBox("문장", self)
-        self.category_checkBox3 = QCheckBox("어절", self)
-        self.category_checkBox4 = QCheckBox("출전", self)
-
-        self.category_checkBox1.setObjectName("단어")
-
-        self.hbTop.addWidget(self.lbl)
-        self.hbMid.addWidget(self.table)
-
-        self.hbBot_option_row.addWidget(self.option_row)
-        self.hbBot_option_category.addWidget(self.category_checkBox1)
-        self.hbBot_option_category.addWidget(self.category_checkBox2)
-        self.hbBot_option_category.addWidget(self.category_checkBox3)
-        self.hbBot_option_category.addWidget(self.category_checkBox4)
-        self.hbBot_input.addWidget(self.ln)
-        self.hbBot_input.addWidget(self.btn1)
-
-        # self.hbMid.addLayout(self.hbMid_search)
-
-        self.option_row.activated[str].connect(self.onOptionRowActivated)
-        self.btn1.clicked.connect(self.searchData)
-        self.category_checkBox1.stateChanged.connect(self.onCheckBox1_checked)
-        self.category_checkBox2.stateChanged.connect(self.onCheckBox1_checked)
-        self.category_checkBox3.stateChanged.connect(self.onCheckBox1_checked)
-        self.category_checkBox4.stateChanged.connect(self.onCheckBox1_checked)
-
-    def onCheckBox1_checked(self, state):
-        global SELECTED_CATEGORIES
-        a = self.sender()
-        # print(a.text())
-        
-        if state == Qt.Checked:
-            SELECTED_CATEGORIES.append(a.text())
-        else:
-            SELECTED_CATEGORIES.remove(a.text())
-        
-
-    def onOptionRowActivated(self, text):
-        global ROW_SIZE
-
-        self.hbMid.removeWidget(self.table)
-        self.table.deleteLater()
-        self.table = None
-
-        ROW_SIZE = int(text)
-        self.createTable()
-        self.hbMid.addWidget(self.table)
-
-    def searchData(self):
-        global ROW_SIZE
-        global COL_SIZE
-        global CURRENT_CONTENTS # Parsed data
-        global SELECTED_CATEGORIES
-
-        CURRENT_CONTENTS = Parsing(self.ln.text())
-        
-        dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form"}
-        try:
-            for keywords in SELECTED_CATEGORIES:
-                for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
-                    if keywords == "문장":
-                        key = dic_t[keywords]
-                        self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentence_result[r][key]))
-                    if keywords == "어절":
-                        key = dic_t[keywords]
-                        self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.soundBlock_result[r][key]))
-                    if keywords == "출전":
-                        key = dic_t[keywords]
-                        self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
-        except error:
-            for r in range(ROW_SIZE):
-                for c in range(COL_SIZE):
-                    self.table.setItem(r, c, QTableWidgetItem(""))
-
-    def createTable(self):
-        global ROW_SIZE
-        global COL_SIZE
-        self.table = QTableWidget()
-
-        self.table.setRowCount(ROW_SIZE)
-        self.table.setColumnCount(COL_SIZE)
