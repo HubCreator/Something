@@ -1,12 +1,10 @@
 from os import curdir, error, memfd_create, terminal_size
 from sys import setrecursionlimit
-# from typing import Collection, Sequence
-# from PyQt5 import QtWidgets
+
+from PyQt5 import QtGui
 from parsing import Parsing
-# from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import  Qt
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-
 COL_SIZE = 5
 ROW_SIZE = 10
 CURRENT_CONTENTS = None
@@ -69,7 +67,12 @@ class MyLayout(QWidget):
         self.hbBot_input.addWidget(self.ln)
         self.hbBot_input.addWidget(self.btn1)
 
-        # self.hbMid.addLayout(self.hbMid_search)
+        # self.btn1_action = QAction(self)
+        # self.btn1_action.setShortcut('Enter')
+        # self.btn1_action.setStatusTip('Enter를 치면 검색합니다.')
+        
+        # self.btn1.addAction(self.btn1_action)
+        # self.btn1_action.triggered.connect(self.searchData)
 
         self.option_row.activated[str].connect(self.onOptionRowActivated)
         self.btn1.clicked.connect(self.searchData)
@@ -77,6 +80,11 @@ class MyLayout(QWidget):
         self.category_checkBox2.stateChanged.connect(self.onCheckBox1_checked)
         self.category_checkBox3.stateChanged.connect(self.onCheckBox1_checked)
         self.category_checkBox4.stateChanged.connect(self.onCheckBox1_checked)
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Enter or e.key() == Qt.Key_Return:
+            self.searchData()
+        
 
     def onCheckBox1_checked(self, state):
         global SELECTED_CATEGORIES
@@ -93,7 +101,7 @@ class MyLayout(QWidget):
         global SEARCH_ALL
 
         if str(text) == "모두_출력":
-            # ROW_SIZE = 100  # 초기 기본값
+            ROW_SIZE = 100  # 초기 기본값
             SEARCH_ALL = True
         else:            
             SEARCH_ALL = False
@@ -116,7 +124,7 @@ class MyLayout(QWidget):
         self.table = QTableWidget()
         
         if SEARCH_ALL == True:
-            ROW_SIZE = CURRENT_CONTENTS.result_count
+            # ROW_SIZE = CURRENT_CONTENTS.result_count
             self.table.setRowCount(ROW_SIZE)
         else:
             self.table.setRowCount(ROW_SIZE)
@@ -145,6 +153,8 @@ class MyLayout(QWidget):
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form"}
         try:
             if SEARCH_ALL == True:
+                # self.reAppendTable()
+                ROW_SIZE = CURRENT_CONTENTS.result_count
                 self.reAppendTable()
                 for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
                     if ROW_SIZE:
