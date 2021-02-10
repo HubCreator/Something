@@ -2,13 +2,15 @@ from layout import MyLayout
 # from typing import Collection, Sequence
 # from PyQt5 import QtWidgets
 from PyQt5.QtCore import  QCoreApplication
-from PyQt5.QtWidgets import QAction, QMainWindow, QMenu, QMessageBox
+from PyQt5.QtWidgets import QAction, QFileDialog, QMainWindow, QMenu, QMessageBox
 
-class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
-    def __init__(self):                         # 생성자
-        super(MyApp, self).__init__()                      # 상위 객체 생성(QMainWindow 생성자 호출)
-        self.setCentralWidget(MyLayout())
-        self.statusBar()                        # 상태 표시줄 생성
+MESSAGE = None
+
+class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
+    def __init__(self, parent = None):                         # 생성자
+        super(MyApp, self).__init__()           # 상위 객체 생성(QMainWindow 생성자 호출)
+        self.main_widget = MyLayout(self)
+        self.setCentralWidget(self.main_widget)
         
         self.initUI()
         
@@ -16,7 +18,11 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         self.setGeometry(600, 300, 800, 600)    # 창이 뜨는 위치와 크기 조절
         self.setWindowTitle('말뭉치 단어 찾기 프로그램')
 
-        self.statusBar().showMessage('hello')
+        # self.statusBar()                        # 상태 표시줄 생성
+        # self.statusBar().showMessage('hello')
+        self.myStatusBar = self.statusBar()
+        self.myStatusBar.showMessage('hello')
+
         
         self.makeMenuBar()
 
@@ -37,11 +43,23 @@ class MyApp(QMainWindow):                        # QMainWindow 클래스 상속
         menuBar_file_new_newFile = QAction('새로운 파일 열기', self)
         menuBar_file_new_openFile = QAction('기존 파일 열기', self)
 
+        menuBar_file_new_openFile.triggered.connect(self.pushButton_handler)
+
         menuBar_file_new.addAction(menuBar_file_new_newFile) # 서브 메뉴 등록
         menuBar_file_new.addAction(menuBar_file_new_openFile)
 
         menuBar_file.addMenu(menuBar_file_new)
         menuBar_file.addAction(menuBar_file_exit)          # 메뉴 등록
+
+    def pushButton_handler(self):
+        print("Button pressed")
+        self.open_dialog_box()
+
+    def open_dialog_box(self):
+        filename = QFileDialog.getOpenFileName()
+        path = filename[0]
+        print(filename)
+        print(path)
     
     def closeEvent(self, QCloseEvent):
         answer = QMessageBox.question(self, '종료 확인', '종료하시겠습니까??', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)

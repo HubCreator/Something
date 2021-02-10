@@ -5,6 +5,8 @@ from PyQt5 import QtGui
 from parsing import Parsing
 from PyQt5.QtCore import  Qt
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+# from app import MESSAGE
+
 COL_SIZE = 5
 ROW_SIZE = 10
 CURRENT_CONTENTS = None
@@ -12,8 +14,9 @@ SELECTED_CATEGORIES = []
 SEARCH_ALL = False
 
 class MyLayout(QWidget):
-    def __init__(self):
-        super(MyLayout, self).__init__()
+    def __init__(self, parent):
+        super(MyLayout, self).__init__(parent)
+        self.parent = parent
         
         self.initLayout()
 
@@ -67,13 +70,6 @@ class MyLayout(QWidget):
         self.hbBot_input.addWidget(self.ln)
         self.hbBot_input.addWidget(self.btn1)
 
-        # self.btn1_action = QAction(self)
-        # self.btn1_action.setShortcut('Enter')
-        # self.btn1_action.setStatusTip('Enter를 치면 검색합니다.')
-        
-        # self.btn1.addAction(self.btn1_action)
-        # self.btn1_action.triggered.connect(self.searchData)
-
         self.option_row.activated[str].connect(self.onOptionRowActivated)
         self.btn1.clicked.connect(self.searchData)
         self.category_checkBox1.stateChanged.connect(self.onCheckBox1_checked)
@@ -99,6 +95,8 @@ class MyLayout(QWidget):
     def onOptionRowActivated(self, text):
         global ROW_SIZE
         global SEARCH_ALL
+
+        self.parent.myStatusBar.showMessage("")
 
         if str(text) == "모두_출력":
             ROW_SIZE = 100  # 초기 기본값
@@ -138,6 +136,10 @@ class MyLayout(QWidget):
         self.hbMid.addWidget(self.table)
         self.wipeTableData()
 
+    def changeStatusBar(self):
+        self.message = "총 갯수 >> " + str(CURRENT_CONTENTS.result_count)
+        self.parent.myStatusBar.showMessage(self.message)
+
     def searchData(self):
         global ROW_SIZE
         global COL_SIZE
@@ -155,13 +157,10 @@ class MyLayout(QWidget):
             if SEARCH_ALL == True:
                 # self.reAppendTable()
                 ROW_SIZE = CURRENT_CONTENTS.result_count
+                self.changeStatusBar()
                 self.reAppendTable()
                 for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
                     if ROW_SIZE:
-                        print("SEARCH_ALL == TRUE")
-                        # self.reAppendTable()
-                        # ROW_SIZE = CURRENT_CONTENTS.result_count
-                        # to-do : give some puase
                         for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
                             if keywords == "문장":
                                 key = dic_t[keywords]
@@ -173,9 +172,9 @@ class MyLayout(QWidget):
                                 key = dic_t[keywords]
                                 self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
 
+            self.changeStatusBar()
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
                 if (ROW_SIZE >= CURRENT_CONTENTS.result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
-                    print("SEARCH_ALL == FALSE")
                     for r in range(CURRENT_CONTENTS.result_count):   # ROW_SIZE 만큼만 출력
                         if keywords == "문장":
                             key = dic_t[keywords]
@@ -186,10 +185,8 @@ class MyLayout(QWidget):
                         if keywords == "출전":
                             key = dic_t[keywords]
                             self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
-                        # self.statusBar().showMessage('총 갯수 >> ', CURRENT_CONTENTS.result_count)
 
                 if (ROW_SIZE < CURRENT_CONTENTS.result_count) and (SEARCH_ALL == False):
-                    print("ELSE")
                     for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
                         if keywords == "문장":
                             key = dic_t[keywords]
@@ -200,7 +197,6 @@ class MyLayout(QWidget):
                         if keywords == "출전":
                             key = dic_t[keywords]
                             self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
-                        # self.statusBar().showMessage('총 갯수 >> ', CURRENT_CONTENTS.result_count)
                     
         except error:
             self.wipeTableData()
