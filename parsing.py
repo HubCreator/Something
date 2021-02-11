@@ -7,9 +7,12 @@ class Parsing():
         self.file = dataFile
         self.word_result = []           # 단어
         self.soundBlock_result = []     # 어절
-        self.sentence_result = []       # 문장
-        self.origin_result = []         # 출전
+        self.soundBlockChecked_sentence_result = []       # 문장
+        self.sentence_result = []
         self.word_result_with_soundBlock = []
+        self.soundBlockChecked_origin_result = []         # 출전
+        self.origin_result = []
+
         self.soundBlock_result_count = 0
         self.word_result_count = 0
 
@@ -32,13 +35,15 @@ class Parsing():
                         value = word["form"]
                         if value[value.find(self.myKeyword) : value.find(self.myKeyword) + len(self.myKeyword)] == self.myKeyword:
                             self.soundBlock_result_count += 1
-                            self.sentence_result.append(lines)      # 문장
-                            self.origin_result.append(pages)        # 출전
+                            self.soundBlockChecked_sentence_result.append(lines)      # 문장
+                            self.soundBlockChecked_origin_result.append(pages)        # 출전
                             self.soundBlock_result.append(word)         # 어절
                             if value == self.myKeyword:
                                 self.word_result_count += 1
                                 self.word_result.append(word)
                                 self.word_result_with_soundBlock.append(word)
+                                self.origin_result.append(pages)
+                                self.sentence_result.append(lines)
                             else:
                                 self.word_result_with_soundBlock.append("")
                             #self.word_result.append(word) # 단어

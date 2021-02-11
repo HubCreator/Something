@@ -150,50 +150,64 @@ class MyLayout(QWidget):
 
         if "단어" in SELECTED_CATEGORIES:
             if "어절" in SELECTED_CATEGORIES:
-                self.message = "해당 단어의 갯수 >> " + str(CURRENT_CONTENTS.word_result_count) + ", 해당 어절의 갯수 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
+                self.message = "해당 단어의 갯수 >> " + str(CURRENT_CONTENTS.word_result_count) + " / 해당 단어를 포함한 결과 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
             else:
                 self.message = "해당 단어의 갯수 >> " + str(CURRENT_CONTENTS.word_result_count)
 
         elif "어절" in SELECTED_CATEGORIES:
             if "단어" in SELECTED_CATEGORIES:
-                self.message = "해당 단어의 갯수 >> " + str(CURRENT_CONTENTS.word_result_count) + ", 해당 어절의 갯수 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
+                self.message = "해당 단어의 갯수 >> " + str(CURRENT_CONTENTS.word_result_count) + " / 해당 단어를 포함한 결과 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
             else:
-                self.message = "해당 어절의 갯수 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
+                self.message = "해당 단어를 포함한 결과 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
 
         else:
-                self.message = "해당 어절의 갯수 >> " + str(CURRENT_CONTENTS.soundBlock_result_count)
+                self.message = "해당 단어를 포함한 결과 >> " + str(CURRENT_CONTENTS.word_result_count)
 
         self.parent.myStatusBar.showMessage(self.message)
 
-    def printData(self, keywords, r):
+    def printData(self, r):
         global CURRENT_CONTENTS
+        global SELECTED_CATEGORIES
+
 
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form", "단어" : "form"}
 
-        if keywords == "문장":
-            key = dic_t[keywords]
-            if CURRENT_CONTENTS.sentence_result[r] == None:
-                self.table.setItem(r, 0, QTableWidgetItem(""))
-            self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentence_result[r][key]))
-        if keywords == "단어":
-            key = dic_t[keywords]
-            # if CURRENT_CONTENTS.word_result[r] == None:
-            #     self.table.setItem(r, 1, QTableWidgetItem(""))
-            if CURRENT_CONTENTS.word_result_with_soundBlock[r] == "":
-                self.table.setItem(r, 1, QTableWidgetItem(""))
-            else:
-                self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.word_result_with_soundBlock[r][key] ))
-        if keywords == "어절":
-            key = dic_t[keywords]
-            if CURRENT_CONTENTS.soundBlock_result[r] == None:
-                self.table.setItem(r, 2, QTableWidgetItem(""))
-            self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.soundBlock_result[r][key] ))
-        if keywords == "출전":
-            key = dic_t[keywords]
-            if CURRENT_CONTENTS.origin_result[r][key]["title"] == "":
-                self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["publisher"]))
-            else:
-                self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
+        for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
+            if keywords == "문장":
+                key = dic_t[keywords]
+                if "어절" in SELECTED_CATEGORIES:
+                    self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.soundBlockChecked_sentence_result[r][key]))
+                else:
+                    self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentence_result[r][key]))
+            if keywords == "단어":
+                key = dic_t[keywords]
+                if "어절" in SELECTED_CATEGORIES:
+                    if CURRENT_CONTENTS.word_result_with_soundBlock[r] == "":
+                        self.table.setItem(r, 1, QTableWidgetItem(""))
+                    else:
+                        self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.word_result_with_soundBlock[r][key]))
+
+                # if CURRENT_CONTENTS.word_result_with_soundBlock[r] == "":
+                #     self.table.setItem(r, 1, QTableWidgetItem(""))
+                else:
+                    self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.word_result[r][key]))
+            if keywords == "어절":
+                key = dic_t[keywords]
+                if CURRENT_CONTENTS.soundBlock_result[r] == None:
+                    self.table.setItem(r, 2, QTableWidgetItem(""))
+                self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.soundBlock_result[r][key] ))
+            if keywords == "출전":
+                key = dic_t[keywords]
+                if "어절" in SELECTED_CATEGORIES:
+                    if CURRENT_CONTENTS.soundBlockChecked_origin_result[r][key]["title"] == "":
+                        self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.soundBlockChecked_origin_result[r][key]["publisher"]))
+                    else:
+                        self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.soundBlockChecked_origin_result[r][key]["title"]))
+                else:
+                    if CURRENT_CONTENTS.origin_result[r][key]["title"] == "":
+                        self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["publisher"]))
+                    else:
+                        self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.origin_result[r][key]["title"]))
 
     def searchData(self):
         global ROW_SIZE
@@ -202,6 +216,7 @@ class MyLayout(QWidget):
         global SELECTED_CATEGORIES
         global SEARCH_ALL
 
+        CURRENT_CONTENTS = None
         CURRENT_CONTENTS = Parsing(self.parent.myObjectFile, self.ln.text())
 
         # self.reAppendTable()
@@ -211,37 +226,26 @@ class MyLayout(QWidget):
             if SEARCH_ALL == True:
                 self.changeStatusBar()
 
-                # ROW_SIZE = CURRENT_CONTENTS.result_count
-                if ("단어" and "어절") in SELECTED_CATEGORIES:
-                    ROW_SIZE = CURRENT_CONTENTS.soundBlock_result_count
-                if "단어" in SELECTED_CATEGORIES:
-                    ROW_SIZE = CURRENT_CONTENTS.word_result_count
                 if "어절" in SELECTED_CATEGORIES:
                     ROW_SIZE = CURRENT_CONTENTS.soundBlock_result_count
+                # if "어절" in SELECTED_CATEGORIES:
+                else:
+                    ROW_SIZE = CURRENT_CONTENTS.word_result_count
 
                 self.reAppendTable()
-                for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
-                    if ROW_SIZE:
-                        for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
-                            self.printData(keywords, r)
+                if ROW_SIZE:
+                    for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                        self.printData(r)
 
             self.changeStatusBar()
-            for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
-                # if("단어" and "어절") in SELECTED_CATEGORIES:
-                #     ROW_SIZE = CURRENT_CONTENTS.soundBlock_result_count
-                # if "단어" in SELECTED_CATEGORIES:
-                #     ROW_SIZE = CURRENT_CONTENTS.word_result_count
-                # if "어절" in SELECTED_CATEGORIES:
-                #     ROW_SIZE = CURRENT_CONTENTS.soundBlock_result_count
-                    
-                if (ROW_SIZE >= CURRENT_CONTENTS.soundBlock_result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
-                    for r in range(CURRENT_CONTENTS.soundBlock_result_count):   # ROW_SIZE 만큼만 출력
-                        self.printData(keywords, r)
+            if (ROW_SIZE >= CURRENT_CONTENTS.soundBlock_result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
+                for r in range(CURRENT_CONTENTS.soundBlock_result_count):   # ROW_SIZE 만큼만 출력
+                    self.printData(r)
 
 
-                if (ROW_SIZE < CURRENT_CONTENTS.soundBlock_result_count) and (SEARCH_ALL == False):
-                    for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
-                        self.printData(keywords, r)
+            if (ROW_SIZE < CURRENT_CONTENTS.soundBlock_result_count) and (SEARCH_ALL == False):
+                for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                    self.printData(r)
 
 
                     
