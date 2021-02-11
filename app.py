@@ -22,6 +22,8 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
 
         self.show()
 
+        self.open_dialog_box()
+
     def makeMenuBar(self):
         obj = self.menuBar()
         self.menuBar_file = obj.addMenu('File')     # 메뉴 바 내의 그룹 생성
@@ -52,12 +54,9 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
     def open_dialog_box(self):
         self.filename = QFileDialog.getOpenFileName()
         self.path = self.filename[0]
-        # print(path)
         self.dataFile = "languageData"
         self.ext = ".json"
         self.myObjectFile = self.path[self.path.find(self.dataFile) : self.path.find(self.ext) + len(self.ext)]
-        # print(myObjectFile)
-        print(self.path.find(self.dataFile))
     
     def closeEvent(self, QCloseEvent):
         answer = QMessageBox.question(self, '종료 확인', '종료하시겠습니까??', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)

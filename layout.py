@@ -6,10 +6,10 @@ from parsing import Parsing
 from PyQt5.QtCore import  Qt
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
-COL_SIZE = 5
+COL_SIZE = 4
 ROW_SIZE = 10
 CURRENT_CONTENTS = None
-SELECTED_CATEGORIES = []
+SELECTED_CATEGORIES = ["단어", "문장", "어절", "출전"]
 SEARCH_ALL = False
 
 class MyLayout(QWidget):
@@ -53,10 +53,17 @@ class MyLayout(QWidget):
         self.option_row.addItem("30")
         self.option_row.addItem("모두_출력")
 
-        self.category_checkBox1 = QCheckBox("단어", self)
-        self.category_checkBox2 = QCheckBox("문장", self)
+        self.category_checkBox1 = QCheckBox("문장", self)
+        self.category_checkBox1.setChecked(True)
+
+        self.category_checkBox2 = QCheckBox("단어", self)
+        self.category_checkBox2.setChecked(True)
+
         self.category_checkBox3 = QCheckBox("어절", self)
+        self.category_checkBox3.setChecked(True)
+        
         self.category_checkBox4 = QCheckBox("출전", self)
+        self.category_checkBox4.setChecked(True)
 
         self.hbTop.addWidget(self.lbl)
         self.hbMid.addWidget(self.table)
@@ -126,6 +133,8 @@ class MyLayout(QWidget):
         else:
             self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
+
+        self.table.setHorizontalHeaderLabels(("문장", "단어", "어절", "출전"))
 
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
