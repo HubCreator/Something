@@ -8,28 +8,28 @@ class Parsing():
 
         self.fileType = None    # True == sentenceType / False == paragraphType
         
-        self.sentenceType_soundBlock_result = []                        # 어절
-        self.sentenceType_word_result = []                              # 단어
-        self.sentenceType_word_result_with_soundBlock = []              # 단어 (어절이 체크되어 있을 때)
-        self.sentenceType_sentence_result = []                          # 문장
-        self.sentenceType_soundBlockChecked_sentence_result = []        # 문장 (어절이 체크되어 있을 때)
-        self.sentenceType_origin_result = []                            # 출전 
-        self.sentenceType_soundBlockChecked_origin_result = []          # 출전 (어절이 체크되어 있을 때)
+        self.sentenceType_soundBlock_result = [""]                        # 어절
+        self.sentenceType_word_result = [""]                              # 단어
+        self.sentenceType_word_result_with_soundBlock = [""]              # 단어 (어절이 체크되어 있을 때)
+        self.sentenceType_sentence_result = [""]                          # 문장
+        self.sentenceType_soundBlockChecked_sentence_result = [""]        # 문장 (어절이 체크되어 있을 때)
+        self.sentenceType_origin_result = [""]                            # 출전 
+        self.sentenceType_soundBlockChecked_origin_result = [""]          # 출전 (어절이 체크되어 있을 때)
 
         self.sentenceType_soundBlock_result_count = 0
         self.sentenceType_word_result_count = 0
 
 
 
-        self.paragraphType_soundBlock_result = []                   # 어절
-        self.paragraphType_word_result = []                         # 단어
-        self.paragraphType_word_result_with_soundBlock = []         # 단어 (어절이 체크되어 있을 때)
-        self.paragraphType_sentence_result = []                     # 문장
-        self.paragraphType_soundBlockChecked_sentence_result = []   # 문장 (어절이 체크되어 있을 때)
-        self.paragraphType_origin_result = []                       # 출전
-        self.paragraphType_soundBlockChecked_origin_result = []     # 출전 (어절이 체크되어 있을 때)
+        self.paragraphType_soundBlock_result = [""]                   # 어절
+        self.paragraphType_word_result = [""]                         # 단어
+        self.paragraphType_word_result_with_soundBlock = [""]         # 단어 (어절이 체크되어 있을 때)
+        self.paragraphType_sentence_result = [""]                     # 문장
+        self.paragraphType_soundBlockChecked_sentence_result = [""]   # 문장 (어절이 체크되어 있을 때)
+        self.paragraphType_origin_result = [""]                       # 출전
+        self.paragraphType_soundBlockChecked_origin_result = [""]     # 출전 (어절이 체크되어 있을 때)
 
-        self.paragraphType_separated_sentence_result = []
+        self.paragraphType_separated_sentence_result = [""]
 
         self.paragraphType_soundBlock_result_count = 0
         self.paragraphType_word_result_count = 0
@@ -74,12 +74,6 @@ class Parsing():
                     page = pages["paragraph"]
                     for lines in page:
                         words = lines["form"]   # words는 문장이 아닌 Paragraph..  문장 덩어리
-                        # to-do : 한 문장씩 관리..?
-
-                        # for i in range(words[0], len(words), 1):
-                        #     # words[words.find()]
-                        #     pass
-
                         if words[words.find(self.myKeyword) : words.find(self.myKeyword) + len(self.myKeyword)] == self.myKeyword:
                             self.paragraphType_soundBlock_result_count += 1                         # 어절 count
                             self.paragraphType_soundBlockChecked_sentence_result.append(lines)      # 문장

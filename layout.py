@@ -4,12 +4,13 @@ from types import TracebackType
 
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
+from PyQt5 import QtCore
 from parsing import Parsing
 from PyQt5.QtCore import  Qt
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 COL_SIZE = 5
-ROW_SIZE = 10
+ROW_SIZE = 11
 CURRENT_CONTENTS = None
 SELECTED_CATEGORIES = ["단어", "문장", "어절", "출전"]
 SEARCH_ALL = False
@@ -114,11 +115,11 @@ class MyLayout(QWidget):
         self.parent.myStatusBar.showMessage("")
 
         if str(text) == "모두_출력":
-            ROW_SIZE = 100  # 초기 기본값
+            ROW_SIZE = 100 + 1  # 초기 기본값
             SEARCH_ALL = True
         else:            
             SEARCH_ALL = False
-            ROW_SIZE = int(text)
+            ROW_SIZE = int(text) + 1
 
         self.reAppendTable()
         
@@ -141,6 +142,14 @@ class MyLayout(QWidget):
         global COL_ORIGIN
         
         self.table = QTableWidget()
+        self.serialButton = QPushButton("고유번호")
+        self.sentenceButton = QPushButton("문장")
+        self.wordButton = QPushButton("단어")
+        self.wordBlockButton = QPushButton("어절")
+        self.originButton = QPushButton("출전")
+
+        self.table.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
+        
         
         if SEARCH_ALL == True:
             self.table.setRowCount(ROW_SIZE)
@@ -148,14 +157,32 @@ class MyLayout(QWidget):
             self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
 
-        # self.table.setHorizontalHeaderLabels(("고유번호", "문장", "단어", "어절", "출전"))
-        self.table.setHorizontalHeaderItem(COL_SERIAL_NUMBER, QTableWidgetItem("고유번호"))
-        self.table.setHorizontalHeaderItem(COL_SENTENCE, QTableWidgetItem("문장"))
-        self.table.setHorizontalHeaderItem(COL_WORD, QTableWidgetItem("단어"))
-        self.table.setHorizontalHeaderItem(COL_WORDBLOCK, QTableWidgetItem("어절"))
-        self.table.setHorizontalHeaderItem(COL_ORIGIN, QTableWidgetItem("출전"))
+        # self.table.setHorizontalHeaderItem(COL_SERIAL_NUMBER, QTableWidgetItem("고유번호"))
+        # self.table.setHorizontalHeaderItem(COL_SENTENCE, QTableWidgetItem("문장"))
+        # self.table.setHorizontalHeaderItem(COL_WORD, QTableWidgetItem("단어"))
+        # self.table.setHorizontalHeaderItem(COL_WORDBLOCK, QTableWidgetItem("어절"))
+        # self.table.setHorizontalHeaderItem(COL_ORIGIN, QTableWidgetItem("출전"))
+        self.table.setHorizontalHeaderLabels(('1', '2', '3', '4', '5'))
 
+        for i in range(0, ROW_SIZE, 1):
+            self.table.setVerticalHeaderItem(i, QTableWidgetItem(str(i)))
 
+        self.table.setCellWidget(0, COL_SERIAL_NUMBER, self.serialButton)
+        self.table.setCellWidget(0, COL_SENTENCE, self.sentenceButton)
+        self.table.setCellWidget(0, COL_WORD, self.wordButton)
+        self.table.setCellWidget(0, COL_WORDBLOCK, self.wordBlockButton)
+        self.table.setCellWidget(0, COL_ORIGIN, self.originButton)
+
+        # print(self.table.horizontalHeaderItem(COL_SERIAL_NUMBER).text())
+        # tmp = self.table.horizontalHeaderItem(COL_SERIAL_NUMBER)
+        # tmp.clicked.connect(self.onHeaderClicked)
+        # if self.table.horizontalHeaderItem(COL_SERIAL_NUMBER):
+        #     print("hi")
+        # else:
+        #     print("bye")
+
+    def onHeaderClicked(self):
+        print("hi")
 
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
@@ -212,14 +239,11 @@ class MyLayout(QWidget):
         global COL_WORDBLOCK
         global COL_ORIGIN
 
-        # if type == True:
-        #     self.tmp = "sentenceType"
-        # else:
-        #     self.tmp = "paragraphType"
-            
+        # r += 1
+
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form", "단어" : "form"}
 
-        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(r+1)))
+        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(r)))
 
         if type == True:
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
@@ -307,23 +331,29 @@ class MyLayout(QWidget):
                     self.changeStatusBar()
 
                     if "어절" in SELECTED_CATEGORIES:
-                        ROW_SIZE = CURRENT_CONTENTS.sentenceType_soundBlock_result_count
+                        ROW_SIZE = CURRENT_CONTENTS.sentenceType_soundBlock_result_count + 1
                     else:
-                        ROW_SIZE = CURRENT_CONTENTS.sentenceType_word_result_count
+                        ROW_SIZE = CURRENT_CONTENTS.sentenceType_word_result_count + 1
 
                     self.reAppendTable()
                     if ROW_SIZE:
-                        for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                        for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
+                            if r == 0:
+                                continue
                             self.printData(r, True)
 
                 self.changeStatusBar()
                 if (ROW_SIZE >= CURRENT_CONTENTS.sentenceType_soundBlock_result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
-                    for r in range(CURRENT_CONTENTS.sentenceType_soundBlock_result_count):   # ROW_SIZE 만큼만 출력
+                    for r in range(1, CURRENT_CONTENTS.sentenceType_soundBlock_result_count + 1, 1):   # ROW_SIZE 만큼만 출력
+                        if r == 0:
+                                continue
                         self.printData(r, True)
 
 
                 if (ROW_SIZE < CURRENT_CONTENTS.sentenceType_soundBlock_result_count) and (SEARCH_ALL == False):
-                    for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                    for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
+                        if r == 0:
+                                continue
                         self.printData(r, True)
             
             else:
@@ -331,23 +361,23 @@ class MyLayout(QWidget):
                     self.changeStatusBar()
 
                     if "어절" in SELECTED_CATEGORIES:
-                        ROW_SIZE = CURRENT_CONTENTS.paragraphType_soundBlock_result_count
+                        ROW_SIZE = CURRENT_CONTENTS.paragraphType_soundBlock_result_count + 1
                     else:
-                        ROW_SIZE = CURRENT_CONTENTS.paragraphType_word_result_count
+                        ROW_SIZE = CURRENT_CONTENTS.paragraphType_word_result_count + 1
 
                     self.reAppendTable()
                     if ROW_SIZE:
-                        for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                        for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
                             self.printData(r, False)
 
                 self.changeStatusBar()
                 if (ROW_SIZE >= CURRENT_CONTENTS.paragraphType_soundBlock_result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
-                    for r in range(CURRENT_CONTENTS.paragraphType_soundBlock_result_count):   # ROW_SIZE 만큼만 출력
+                    for r in range(1, CURRENT_CONTENTS.paragraphType_soundBlock_result_count + 1, 1):   # ROW_SIZE 만큼만 출력
                         self.printData(r, False)
 
 
                 if (ROW_SIZE < CURRENT_CONTENTS.paragraphType_soundBlock_result_count) and (SEARCH_ALL == False):
-                    for r in range(ROW_SIZE):   # ROW_SIZE 만큼만 출력
+                    for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
                         self.printData(r, False)
 
 
