@@ -29,6 +29,8 @@ class Parsing():
         self.paragraphType_origin_result = []                       # 출전
         self.paragraphType_soundBlockChecked_origin_result = []     # 출전 (어절이 체크되어 있을 때)
 
+        self.paragraphType_separated_sentence_result = []
+
         self.paragraphType_soundBlock_result_count = 0
         self.paragraphType_word_result_count = 0
 
@@ -71,7 +73,13 @@ class Parsing():
                 for pages in doc_data:
                     page = pages["paragraph"]
                     for lines in page:
-                        words = lines["form"]   # words는 문장
+                        words = lines["form"]   # words는 문장이 아닌 Paragraph..  문장 덩어리
+                        # to-do : 한 문장씩 관리..?
+
+                        # for i in range(words[0], len(words), 1):
+                        #     # words[words.find()]
+                        #     pass
+
                         if words[words.find(self.myKeyword) : words.find(self.myKeyword) + len(self.myKeyword)] == self.myKeyword:
                             self.paragraphType_soundBlock_result_count += 1                         # 어절 count
                             self.paragraphType_soundBlockChecked_sentence_result.append(lines)      # 문장
@@ -80,31 +88,30 @@ class Parsing():
                             self.start = 0
                             self.end = 0
 
-                            for i in range(words.find(self.myKeyword) - 1, 0, -1):
+                            # to-do : ASCII ??
+                            for i in range(words.find(self.myKeyword), 0, -1):
                                 if i > 0:
-                                    if words[i] == " " or words[i] == "'" or words[i] == '"':
+                                    if words[i] == " " or words[i] == " " or words[i] == "'" or words[i] == '"':
                                         self.start = i
                                         break
                                 else:
                                     self.start = 0
                                     break
 
-                            for i in range(words.find(self.myKeyword) + len(self.myKeyword), len(words), 1):
-                                if i <= len(words):
-                                    if words[i] == " " or words[i] == ".":
-                                        self.end = i
+                            for j in range(words.find(self.myKeyword) + len(self.myKeyword), len(words), 1):
+                                if j < len(words):
+                                    if words[j] == " " or  words[j] == "" or words[j] == "." or words[j] == "," or words[j] == "?" or words[j] == '"' or words[j] == "'":
+                                        self.end = j
                                         break
                                 else:
                                     self.end = len(words)
                                     break
 
-                            self.paragraphType_soundBlock_result.append(words[self.start : self.end].strip())         # 어절
+                            # if words[self.start : self.end].strip() == "" or words[self.start : self.end].strip() == " ":
+                            #     continue
 
-                            print(words[self.start : self.end].strip())
-                            print(self.myKeyword)
-                            # if words[self.start : self.end] == self.myKeyword:  # 어절이 단어와 같다면
-                            # if words.find(self.myKeyword) != 0:
-                                # if (words[words.find(self.myKeyword) - 1] == " ") and (words[words.find(self.myKeyword) + len(self.myKeyword) + 1] == " ") == True:   # 단어가 True이면..
+                            self.paragraphType_soundBlock_result.append(words[self.start:self.end])         # 어절
+
                             if words[self.start : self.end].strip() == self.myKeyword:
                                 self.paragraphType_word_result_count += 1
                                 self.paragraphType_word_result.append(self.myKeyword)
@@ -113,20 +120,8 @@ class Parsing():
                                 self.paragraphType_origin_result.append(pages)
                                 self.paragraphType_sentence_result.append(lines)
 
-                                # if self.myKeyword == words[self.start : self.end]:
-                                #     self.paragraphType_word_result.append(self.myKeyword)
                             else:
                                 self.paragraphType_word_result_with_soundBlock.append("")
-                            # else:
-                            #     if (words[words.find(self.myKeyword) + len(self.myKeyword) + 1] == " "):
-                            #         self.paragraphType_word_result_count += 1
-                            #         self.paragraphType_word_result.append(self.myKeyword)
-                            #         self.paragraphType_word_result_with_soundBlock.append(self.myKeyword)
-                            #         self.paragraphType_origin_result.append(pages)
-                            #         self.paragraphType_sentence_result.append(lines)
-
-                            #     else:
-                            #         self.paragraphType_word_result_with_soundBlock.append("")
                         
                         
         except error:

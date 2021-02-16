@@ -3,15 +3,22 @@ from sys import setrecursionlimit
 from types import TracebackType
 
 from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 from parsing import Parsing
 from PyQt5.QtCore import  Qt
 from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
-COL_SIZE = 4
+COL_SIZE = 5
 ROW_SIZE = 10
 CURRENT_CONTENTS = None
 SELECTED_CATEGORIES = ["단어", "문장", "어절", "출전"]
 SEARCH_ALL = False
+
+COL_SERIAL_NUMBER = 0
+COL_SENTENCE = 1
+COL_WORD = 2
+COL_WORDBLOCK = 3
+COL_ORIGIN = 4
 
 class MyLayout(QWidget):
     def __init__(self, parent):
@@ -126,6 +133,12 @@ class MyLayout(QWidget):
         global COL_SIZE
         global SEARCH_ALL
         global CURRENT_CONTENTS
+
+        global COL_SERIAL_NUMBER
+        global COL_SENTENCE
+        global COL_WORD
+        global COL_WORDBLOCK
+        global COL_ORIGIN
         
         self.table = QTableWidget()
         
@@ -135,7 +148,14 @@ class MyLayout(QWidget):
             self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
 
-        self.table.setHorizontalHeaderLabels(("문장", "단어", "어절", "출전"))
+        # self.table.setHorizontalHeaderLabels(("고유번호", "문장", "단어", "어절", "출전"))
+        self.table.setHorizontalHeaderItem(COL_SERIAL_NUMBER, QTableWidgetItem("고유번호"))
+        self.table.setHorizontalHeaderItem(COL_SENTENCE, QTableWidgetItem("문장"))
+        self.table.setHorizontalHeaderItem(COL_WORD, QTableWidgetItem("단어"))
+        self.table.setHorizontalHeaderItem(COL_WORDBLOCK, QTableWidgetItem("어절"))
+        self.table.setHorizontalHeaderItem(COL_ORIGIN, QTableWidgetItem("출전"))
+
+
 
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
@@ -186,6 +206,11 @@ class MyLayout(QWidget):
     def printData(self, r, type):
         global CURRENT_CONTENTS
         global SELECTED_CATEGORIES
+        global COL_SERIAL_NUMBER
+        global COL_SENTENCE
+        global COL_WORD
+        global COL_WORDBLOCK
+        global COL_ORIGIN
 
         # if type == True:
         #     self.tmp = "sentenceType"
@@ -194,76 +219,75 @@ class MyLayout(QWidget):
             
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form", "단어" : "form"}
 
+        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(r+1)))
+
         if type == True:
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
                 if keywords == "문장":
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
-                        self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlockChecked_sentence_result[r][key]))
+                        self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlockChecked_sentence_result[r][key]))
                     else:
-                        self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_sentence_result[r][key]))
+                        self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_sentence_result[r][key]))
                 if keywords == "단어":
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
                         if CURRENT_CONTENTS.sentenceType_word_result_with_soundBlock[r] == "":
-                            self.table.setItem(r, 1, QTableWidgetItem(""))
+                            self.table.setItem(r, COL_WORD, QTableWidgetItem(""))
                         else:
-                            self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_word_result_with_soundBlock[r][key]))
+                            self.table.setItem(r, COL_WORD, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_word_result_with_soundBlock[r][key]))
 
                     else:
-                        self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_word_result[r][key]))
+                        self.table.setItem(r, COL_WORD, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_word_result[r][key]))
                 if keywords == "어절":
                     key = dic_t[keywords]
                     if CURRENT_CONTENTS.sentenceType_soundBlock_result[r] == None:
-                        self.table.setItem(r, 2, QTableWidgetItem(""))
-                    self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlock_result[r][key] ))
+                        self.table.setItem(r, COL_WORDBLOCK, QTableWidgetItem(""))
+                    self.table.setItem(r, COL_WORDBLOCK, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlock_result[r][key] ))
                 if keywords == "출전":
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
                         if CURRENT_CONTENTS.sentenceType_soundBlockChecked_origin_result[r][key]["title"] == "":
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlockChecked_origin_result[r][key]["publisher"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlockChecked_origin_result[r][key]["publisher"]))
                         else:
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlockChecked_origin_result[r][key]["title"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_soundBlockChecked_origin_result[r][key]["title"]))
                     else:
                         if CURRENT_CONTENTS.sentenceType_origin_result[r][key]["title"] == "":
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_origin_result[r][key]["publisher"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_origin_result[r][key]["publisher"]))
                         else:
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_origin_result[r][key]["title"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_origin_result[r][key]["title"]))
+
 
         else:
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
                 if keywords == "문장":
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
-                        self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key]))
+                        self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key]))
                     else:
-                        self.table.setItem(r, 0, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key]))
+                        self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key]))
                 if keywords == "단어":
-                    # key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
                         if CURRENT_CONTENTS.paragraphType_word_result_with_soundBlock[r] == "":
-                            self.table.setItem(r, 1, QTableWidgetItem(""))
+                            self.table.setItem(r, COL_WORD, QTableWidgetItem(""))
                         else:
-                            self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_word_result_with_soundBlock[r]))
+                            self.table.setItem(r, COL_WORD, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_word_result_with_soundBlock[r]))
                     else:
-                        self.table.setItem(r, 1, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_word_result[r]))
+                        self.table.setItem(r, COL_WORD, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_word_result[r]))
                 if keywords == "어절":
-                    # key = dic_t[keywords]
-                    # if CURRENT_CONTENTS.paragraphType_soundBlock_result[r] == None:
-                    #     self.table.setItem(r, 2, QTableWidgetItem(""))
-                    self.table.setItem(r, 2, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlock_result[r]))
+                    self.table.setItem(r, COL_WORDBLOCK, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlock_result[r]))
                 if keywords == "출전":
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
                         if CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["title"] == "":
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["publisher"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["publisher"]))
                         else:
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["title"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["title"]))
                     else:
                         if CURRENT_CONTENTS.paragraphType_origin_result[r][key]["title"] == "":
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["publisher"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["publisher"]))
                         else:
-                            self.table.setItem(r, 3, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["title"]))
+                            self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["title"]))
 
     def searchData(self):
         global ROW_SIZE
