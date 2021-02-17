@@ -157,11 +157,6 @@ class MyLayout(QWidget):
             self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
 
-        # self.table.setHorizontalHeaderItem(COL_SERIAL_NUMBER, QTableWidgetItem("고유번호"))
-        # self.table.setHorizontalHeaderItem(COL_SENTENCE, QTableWidgetItem("문장"))
-        # self.table.setHorizontalHeaderItem(COL_WORD, QTableWidgetItem("단어"))
-        # self.table.setHorizontalHeaderItem(COL_WORDBLOCK, QTableWidgetItem("어절"))
-        # self.table.setHorizontalHeaderItem(COL_ORIGIN, QTableWidgetItem("출전"))
         self.table.setHorizontalHeaderLabels(('1', '2', '3', '4', '5'))
 
         for i in range(0, ROW_SIZE, 1):
@@ -173,16 +168,16 @@ class MyLayout(QWidget):
         self.table.setCellWidget(0, COL_WORDBLOCK, self.wordBlockButton)
         self.table.setCellWidget(0, COL_ORIGIN, self.originButton)
 
-        # print(self.table.horizontalHeaderItem(COL_SERIAL_NUMBER).text())
-        # tmp = self.table.horizontalHeaderItem(COL_SERIAL_NUMBER)
-        # tmp.clicked.connect(self.onHeaderClicked)
-        # if self.table.horizontalHeaderItem(COL_SERIAL_NUMBER):
-        #     print("hi")
-        # else:
-        #     print("bye")
+        self.serialButton.clicked.connect(self.handleSequence)
+        self.sentenceButton.clicked.connect(self.handleSequence)
+        self.wordButton.clicked.connect(self.handleSequence)
+        self.wordBlockButton.clicked.connect(self.handleSequence)
+        self.originButton.clicked.connect(self.handleSequence)
 
-    def onHeaderClicked(self):
-        print("hi")
+    def handleSequence(self):
+        a = self.sender()
+        pass
+
 
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
@@ -238,8 +233,6 @@ class MyLayout(QWidget):
         global COL_WORD
         global COL_WORDBLOCK
         global COL_ORIGIN
-
-        # r += 1
 
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form", "단어" : "form"}
 

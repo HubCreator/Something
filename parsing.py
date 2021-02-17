@@ -79,30 +79,31 @@ class Parsing():
                             self.paragraphType_soundBlockChecked_sentence_result.append(lines)      # 문장
                             self.paragraphType_soundBlockChecked_origin_result.append(pages)        # 출전
 
-                            self.start = 0
+                            self.start = 1
                             self.end = 0
 
                             # to-do : ASCII ??
-                            for i in range(words.find(self.myKeyword), 0, -1):
-                                if i > 0:
-                                    if words[i] == " " or words[i] == " " or words[i] == "'" or words[i] == '"':
-                                        self.start = i
+                            if words.find(self.myKeyword) == 0:
+                                self.start = 0
+                            elif words.find(self.myKeyword) > 0:
+                                for i in range(words.find(self.myKeyword), 0, -1):
+                                    if i == words.find(self.myKeyword):
+                                        continue
+
+                                    # todo here
+                                    if  words[i] == '“' or words[i] == "'" or words[i] == " " or words[i] == "" or words[i] == '"' or words[i] == None:
+                                        self.start = i + 1
                                         break
-                                else:
-                                    self.start = 0
-                                    break
+                                
 
                             for j in range(words.find(self.myKeyword) + len(self.myKeyword), len(words), 1):
                                 if j < len(words):
-                                    if words[j] == " " or  words[j] == "" or words[j] == "." or words[j] == "," or words[j] == "?" or words[j] == '"' or words[j] == "'":
+                                    if words[j] == "”" or words[j] == "’" or words[j] == '"' or words[j] == "'" or words[j] == "." or words[j] == "," or words[j] == "?" or words[j] == "!" or words[j] == " " or  words[j] == "":
                                         self.end = j
                                         break
                                 else:
                                     self.end = len(words)
                                     break
-
-                            # if words[self.start : self.end].strip() == "" or words[self.start : self.end].strip() == " ":
-                            #     continue
 
                             self.paragraphType_soundBlock_result.append(words[self.start:self.end])         # 어절
 
