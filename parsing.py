@@ -91,14 +91,14 @@ class Parsing():
                                         continue
 
                                     # todo here
-                                    if  words[i] == '“' or words[i] == "'" or words[i] == " " or words[i] == "" or words[i] == '"' or words[i] == None:
+                                    if  words[i] == '“' or words[i] == '”' or words[i] == "‘" or words[i] == "’" or words[i] == "'"  or words[i] == '"' or words[i] == "<" or words[i] == ">" or words[i] == ":" or words[i] == "-" or words[i] == "…" or words[i] == " " or words[i] == "":
                                         self.start = i + 1
                                         break
                                 
 
                             for j in range(words.find(self.myKeyword) + len(self.myKeyword), len(words), 1):
                                 if j < len(words):
-                                    if words[j] == "”" or words[j] == "’" or words[j] == '"' or words[j] == "'" or words[j] == "." or words[j] == "," or words[j] == "?" or words[j] == "!" or words[j] == " " or  words[j] == "":
+                                    if words[j] == '“' or words[j] == "”" or words[j] == "‘" or words[j] == "’" or words[j] == "'" or words[j] == '"' or words[j] == "." or words[j] == "," or words[j] == "?" or words[j] == "!" or words[j] == "<" or words[j] == ">" or words[j] == "(" or words[j] == ")" or words[j] == "-" or words[j] == "…" or words[j] == " " or  words[j] == "":
                                         self.end = j
                                         break
                                 else:
