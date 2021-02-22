@@ -1,6 +1,6 @@
+from changeSequence import changeSequence
 from os import curdir, error, memfd_create, terminal_size
 from sys import setrecursionlimit
-from types import TracebackType
 
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit
 COL_SIZE = 5
 ROW_SIZE = 11
 CURRENT_CONTENTS = None
-SELECTED_CATEGORIES = ["단어", "문장", "어절", "출전"]
+SELECTED_CATEGORIES = ["문장", "단어", "어절", "출전"]
 SEARCH_ALL = False
 
 COL_SERIAL_NUMBER = 0
@@ -25,6 +25,7 @@ class MyLayout(QWidget):
     def __init__(self, parent):
         super(MyLayout, self).__init__(parent)
         self.parent = parent
+        self.list_for_sequence = []
         
         self.initLayout()
 
@@ -142,11 +143,11 @@ class MyLayout(QWidget):
         global COL_ORIGIN
         
         self.table = QTableWidget()
-        self.serialButton = QPushButton("고유번호")
-        self.sentenceButton = QPushButton("문장")
-        self.wordButton = QPushButton("단어")
-        self.wordBlockButton = QPushButton("어절")
-        self.originButton = QPushButton("출전")
+        self.serialButton = QPushButton("고유번호 🔼️")
+        self.sentenceButton = QPushButton("문장 🔼️")
+        self.wordButton = QPushButton("단어 🔼️")
+        self.wordBlockButton = QPushButton("어절 🔼️")
+        self.originButton = QPushButton("출전 🔼️")
 
         self.table.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
         
@@ -175,16 +176,75 @@ class MyLayout(QWidget):
         self.originButton.clicked.connect(self.handleSequence)
 
     def handleSequence(self):
+        global CURRENT_CONTENTS
+        global ROW_SIZE
+        global COL_SIZE
+        global COL_SERIAL_NUMBER
+
         a = self.sender()
-        pass
+        print(a.text())
 
+        self.tmp1 = [""]
 
+        self.wipeTableData()
+        self.selectedCategory = None
+        if a.text() == "고유번호 🔼️":
+            # True is up / False is down
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, True)
+            # self.selectedCategory.tmp
+
+            # self.reAppendTable()
+            self.wipeTableData()
+
+            # print(ROW_SIZE) # 11
+            # print(len(self.list_for_sequence)) # 10
+            # print(len(self.selectedCategory.tmp)) # 10
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.tmp), 1):
+                    if self.list_for_sequence[i][0] == self.selectedCategory.tmp[j]:
+                        self.tmp1.append(self.list_for_sequence[j])
+            
+            # print(len(self.tmp1))
+            print(self.tmp1)
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp1[r][0]))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp1[r][c]))
+
+            a.setText("고유번호 🔽️")
+
+        else:
+            a.setText("고유번호 🔼️")
+            # changeSequence(self.list_for_sequence, False)
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, False)
+
+            # self.reAppendTable()
+            self.wipeTableData()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.tmp), 1):
+                    if self.list_for_sequence[i][0] == self.selectedCategory.tmp[j]:
+                        self.tmp1.append(self.list_for_sequence[j])
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp1[r][0]))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp1[r][c]))
+                
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
         self.table.deleteLater()
         self.table = None
         self.createTable()
         self.hbMid.addWidget(self.table)
+        self.tmp1.clear()
+        self.tmp1.append("")
         self.wipeTableData()
 
     def changeStatusBar(self):
@@ -225,7 +285,25 @@ class MyLayout(QWidget):
 
         self.parent.myStatusBar.showMessage(self.message)
 
-    def printData(self, r, type):
+    def printChangeSequenceData(self, list):
+        global CURRENT_CONTENTS
+        global ROW_SIZE
+        global COL_SIZE
+        global SELECTED_CATEGORIES
+        global COL_SERIAL_NUMBER
+        global COL_SENTENCE
+        global COL_WORD
+        global COL_WORDBLOCK
+        global COL_ORIGIN
+
+        self.wipeTableData()
+
+        for r in range(len(list)):
+            for c in range(COL_SIZE):
+                self.table.setItem(r, c, QTableWidgetItem(self.list_for_sequence[r].find(self.tmp[c])))
+
+
+    def printSearchResultData(self, r, type):
         global CURRENT_CONTENTS
         global SELECTED_CATEGORIES
         global COL_SERIAL_NUMBER
@@ -236,7 +314,9 @@ class MyLayout(QWidget):
 
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form", "단어" : "form"}
 
+        self.list_for_data = []
         self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(r)))
+        self.list_for_data.append(r)
 
         if type == True:
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
@@ -281,30 +361,47 @@ class MyLayout(QWidget):
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
                         self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key]))
+                        self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key])
                     else:
                         self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key]))
+                        self.list_for_data.append(CURRENT_CONTENTS.paragraphType_sentence_result[r][key])
+
                 if keywords == "단어":
                     if "어절" in SELECTED_CATEGORIES:
                         if CURRENT_CONTENTS.paragraphType_word_result_with_soundBlock[r] == "":
                             self.table.setItem(r, COL_WORD, QTableWidgetItem(""))
+                            self.list_for_data.append("")
                         else:
                             self.table.setItem(r, COL_WORD, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_word_result_with_soundBlock[r]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_word_result_with_soundBlock[r])
+
                     else:
                         self.table.setItem(r, COL_WORD, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_word_result[r]))
+                        self.list_for_data.append(CURRENT_CONTENTS.paragraphType_word_result[r])
+
                 if keywords == "어절":
                     self.table.setItem(r, COL_WORDBLOCK, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlock_result[r]))
+                    self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlock_result[r])
+
                 if keywords == "출전":
                     key = dic_t[keywords]
                     if "어절" in SELECTED_CATEGORIES:
                         if CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["title"] == "":
                             self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["publisher"]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["publisher"])
                         else:
                             self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["title"]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_origin_result[r][key]["title"])
                     else:
                         if CURRENT_CONTENTS.paragraphType_origin_result[r][key]["title"] == "":
                             self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["publisher"]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["publisher"])
                         else:
                             self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["title"]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_origin_result[r][key]["title"])
+
+            self.list_for_sequence.append(self.list_for_data)
+
 
     def searchData(self):
         global ROW_SIZE
@@ -331,23 +428,17 @@ class MyLayout(QWidget):
                     self.reAppendTable()
                     if ROW_SIZE:
                         for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
-                            if r == 0:
-                                continue
-                            self.printData(r, True)
+                            self.printSearchResultData(r, True)
 
                 self.changeStatusBar()
                 if (ROW_SIZE >= CURRENT_CONTENTS.sentenceType_soundBlock_result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
                     for r in range(1, CURRENT_CONTENTS.sentenceType_soundBlock_result_count + 1, 1):   # ROW_SIZE 만큼만 출력
-                        if r == 0:
-                                continue
-                        self.printData(r, True)
+                        self.printSearchResultData(r, True)
 
 
                 if (ROW_SIZE < CURRENT_CONTENTS.sentenceType_soundBlock_result_count) and (SEARCH_ALL == False):
                     for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
-                        if r == 0:
-                                continue
-                        self.printData(r, True)
+                        self.printSearchResultData(r, True)
             
             else:
                 if SEARCH_ALL == True:
@@ -361,17 +452,17 @@ class MyLayout(QWidget):
                     self.reAppendTable()
                     if ROW_SIZE:
                         for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
-                            self.printData(r, False)
+                            self.printSearchResultData(r, False)
 
                 self.changeStatusBar()
                 if (ROW_SIZE >= CURRENT_CONTENTS.paragraphType_soundBlock_result_count) and (SEARCH_ALL == False):    # 결과의 갯수와 ROW_SIZE 비교
                     for r in range(1, CURRENT_CONTENTS.paragraphType_soundBlock_result_count + 1, 1):   # ROW_SIZE 만큼만 출력
-                        self.printData(r, False)
+                        self.printSearchResultData(r, False)
 
 
                 if (ROW_SIZE < CURRENT_CONTENTS.paragraphType_soundBlock_result_count) and (SEARCH_ALL == False):
                     for r in range(1, ROW_SIZE, 1):   # ROW_SIZE 만큼만 출력
-                        self.printData(r, False)
+                        self.printSearchResultData(r, False)
 
 
                     
