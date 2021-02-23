@@ -22,8 +22,8 @@ class changeSequence():
         # serial_number_list 안에서 오름, 내림차순 정렬
         if self.category == 0:
             if self.updown == True:
-                self.tmp = sorted(self.serial_number_list, reverse = True)
+                self.sequence_result = sorted(self.serial_number_list, reverse = True)
 
             else:
-                self.tmp = sorted(self.serial_number_list, reverse = False)
+                self.sequence_result = sorted(self.serial_number_list, reverse = False)
             

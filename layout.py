@@ -25,7 +25,7 @@ class MyLayout(QWidget):
     def __init__(self, parent):
         super(MyLayout, self).__init__(parent)
         self.parent = parent
-        self.list_for_sequence = []
+        # self.list_for_sequence = []
         
         self.initLayout()
 
@@ -152,10 +152,7 @@ class MyLayout(QWidget):
         self.table.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
         
         
-        if SEARCH_ALL == True:
-            self.table.setRowCount(ROW_SIZE)
-        else:
-            self.table.setRowCount(ROW_SIZE)
+        self.table.setRowCount(ROW_SIZE)
         self.table.setColumnCount(COL_SIZE)
 
         self.table.setHorizontalHeaderLabels(('1', '2', '3', '4', '5'))
@@ -182,60 +179,57 @@ class MyLayout(QWidget):
         global COL_SERIAL_NUMBER
 
         a = self.sender()
-        print(a.text())
+        # print(a.text())
 
-        self.tmp1 = [""]
+        self.tmp = [""]
 
         self.wipeTableData()
         self.selectedCategory = None
         if a.text() == "고유번호 🔼️":
             # True is up / False is down
             self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, True)
-            # self.selectedCategory.tmp
 
-            # self.reAppendTable()
-            self.wipeTableData()
+            self.reAppendTable()
+            # self.wipeTableData()
 
             # print(ROW_SIZE) # 11
             # print(len(self.list_for_sequence)) # 10
             # print(len(self.selectedCategory.tmp)) # 10
 
             for i in range(0, len(self.list_for_sequence), 1):
-                for j in range(0, len(self.selectedCategory.tmp), 1):
-                    if self.list_for_sequence[i][0] == self.selectedCategory.tmp[j]:
-                        self.tmp1.append(self.list_for_sequence[j])
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if self.list_for_sequence[i][0] == self.selectedCategory.sequence_result[j]:
+                        self.tmp.append(self.list_for_sequence[j])
             
-            # print(len(self.tmp1))
-            print(self.tmp1)
+            # print(self.tmp)
 
             for r in range(1, ROW_SIZE, 1):
                 for c in range(0, COL_SIZE, 1):
                     if c == 0:
-                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp1[r][0]))))
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][0])))))
                     else:
-                        self.table.setItem(r, c, QTableWidgetItem(self.tmp1[r][c]))
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
 
             a.setText("고유번호 🔽️")
 
         else:
             a.setText("고유번호 🔼️")
-            # changeSequence(self.list_for_sequence, False)
             self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, False)
 
             # self.reAppendTable()
             self.wipeTableData()
 
             for i in range(0, len(self.list_for_sequence), 1):
-                for j in range(0, len(self.selectedCategory.tmp), 1):
-                    if self.list_for_sequence[i][0] == self.selectedCategory.tmp[j]:
-                        self.tmp1.append(self.list_for_sequence[j])
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if self.list_for_sequence[i][0] == self.selectedCategory.sequence_result[j]:
+                        self.tmp.append(self.list_for_sequence[j])
 
             for r in range(1, ROW_SIZE, 1):
                 for c in range(0, COL_SIZE, 1):
                     if c == 0:
-                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp1[r][0]))))
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp[r][c]))))
                     else:
-                        self.table.setItem(r, c, QTableWidgetItem(self.tmp1[r][c]))
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
                 
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
@@ -243,8 +237,8 @@ class MyLayout(QWidget):
         self.table = None
         self.createTable()
         self.hbMid.addWidget(self.table)
-        self.tmp1.clear()
-        self.tmp1.append("")
+        self.tmp.clear()
+        self.tmp.append("")
         self.wipeTableData()
 
     def changeStatusBar(self):
@@ -285,23 +279,6 @@ class MyLayout(QWidget):
 
         self.parent.myStatusBar.showMessage(self.message)
 
-    def printChangeSequenceData(self, list):
-        global CURRENT_CONTENTS
-        global ROW_SIZE
-        global COL_SIZE
-        global SELECTED_CATEGORIES
-        global COL_SERIAL_NUMBER
-        global COL_SENTENCE
-        global COL_WORD
-        global COL_WORDBLOCK
-        global COL_ORIGIN
-
-        self.wipeTableData()
-
-        for r in range(len(list)):
-            for c in range(COL_SIZE):
-                self.table.setItem(r, c, QTableWidgetItem(self.list_for_sequence[r].find(self.tmp[c])))
-
 
     def printSearchResultData(self, r, type):
         global CURRENT_CONTENTS
@@ -315,6 +292,8 @@ class MyLayout(QWidget):
         dic_t = {"문장" : "form", "출전" : "metadata", "어절" : "form", "단어" : "form"}
 
         self.list_for_data = []
+        self.list_for_data.clear()
+
         self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(r)))
         self.list_for_data.append(r)
 
@@ -414,6 +393,9 @@ class MyLayout(QWidget):
         CURRENT_CONTENTS = Parsing(self.parent.myObjectFile, self.ln.text())
 
         self.wipeTableData()
+        self.list_for_sequence = []
+        self.list_for_sequence.clear()
+        
 
         try:
             if CURRENT_CONTENTS.fileType == True:
