@@ -1,5 +1,5 @@
 from changeSequence import changeSequence
-from os import curdir, error, memfd_create, terminal_size
+from os import curdir, error, memfd_create, stat, terminal_size
 from sys import setrecursionlimit
 
 from PyQt5 import QtGui
@@ -20,6 +20,12 @@ COL_SENTENCE = 1
 COL_WORD = 2
 COL_WORDBLOCK = 3
 COL_ORIGIN = 4
+
+STATUS_OF_SERIAL_BUTTON = "고유번호 🔼️"
+STATUS_OF_SENTENCE_BUTTON = "문장 🔼️"
+STATUS_OF_WORD_BUTTON = "단어 🔼️"
+STATUS_OF_WORDBLOCK_BUTTON = "어절 🔼️"
+STATUS_OF_ORIGIN_BUTTON = "출전 🔼️"
 
 class MyLayout(QWidget):
     def __init__(self, parent):
@@ -141,13 +147,19 @@ class MyLayout(QWidget):
         global COL_WORD
         global COL_WORDBLOCK
         global COL_ORIGIN
+
+        global STATUS_OF_SERIAL_BUTTON
+        global STATUS_OF_SENTENCE_BUTTON
+        global STATUS_OF_WORD_BUTTON
+        global STATUS_OF_WORDBLOCK_BUTTON
+        global STATUS_OF_ORIGIN_BUTTON
         
         self.table = QTableWidget()
-        self.serialButton = QPushButton("고유번호 🔼️")
-        self.sentenceButton = QPushButton("문장 🔼️")
-        self.wordButton = QPushButton("단어 🔼️")
-        self.wordBlockButton = QPushButton("어절 🔼️")
-        self.originButton = QPushButton("출전 🔼️")
+        self.serialButton = QPushButton(STATUS_OF_SERIAL_BUTTON)
+        self.sentenceButton = QPushButton(STATUS_OF_SENTENCE_BUTTON)
+        self.wordButton = QPushButton(STATUS_OF_WORD_BUTTON)
+        self.wordBlockButton = QPushButton(STATUS_OF_WORDBLOCK_BUTTON)
+        self.originButton = QPushButton(STATUS_OF_ORIGIN_BUTTON)
 
         self.table.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
         
@@ -178,10 +190,16 @@ class MyLayout(QWidget):
         global COL_SIZE
         global COL_SERIAL_NUMBER
 
+        global STATUS_OF_SERIAL_BUTTON
+        global STATUS_OF_SENTENCE_BUTTON
+        global STATUS_OF_WORD_BUTTON
+        global STATUS_OF_WORDBLOCK_BUTTON
+        global STATUS_OF_ORIGIN_BUTTON
+
         a = self.sender()
         # print(a.text())
 
-        self.tmp = [""]
+        self.tmp = [""] # tmp is for result of changed data
 
         self.wipeTableData()
         self.selectedCategory = None
@@ -189,6 +207,7 @@ class MyLayout(QWidget):
             # True is up / False is down
             self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, True)
 
+            STATUS_OF_SERIAL_BUTTON = "고유번호 🔽️"
             self.reAppendTable()
             # self.wipeTableData()
 
@@ -210,14 +229,14 @@ class MyLayout(QWidget):
                     else:
                         self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
 
-            a.setText("고유번호 🔽️")
+            # a.setText("고유번호 🔽️")
 
         else:
-            a.setText("고유번호 🔼️")
             self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, False)
 
-            # self.reAppendTable()
-            self.wipeTableData()
+            # self.wipeTableData()
+            STATUS_OF_SERIAL_BUTTON = "고유번호 🔼️"
+            self.reAppendTable()
 
             for i in range(0, len(self.list_for_sequence), 1):
                 for j in range(0, len(self.selectedCategory.sequence_result), 1):
@@ -230,6 +249,8 @@ class MyLayout(QWidget):
                         self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp[r][c]))))
                     else:
                         self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+
+            
                 
     def reAppendTable(self):
         self.hbMid.removeWidget(self.table)
