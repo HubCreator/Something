@@ -76,6 +76,7 @@ class Parsing():
                         words = lines["form"]   # words는 문장이 아닌 Paragraph..  문장 덩어리
                         if words[words.find(self.myKeyword) : words.find(self.myKeyword) + len(self.myKeyword)] == self.myKeyword:
                             self.paragraphType_soundBlock_result_count += 1                         # 어절 count
+                            
                             self.paragraphType_soundBlockChecked_sentence_result.append(lines)      # 문장
                             self.paragraphType_soundBlockChecked_origin_result.append(pages)        # 출전
 
@@ -85,6 +86,7 @@ class Parsing():
                             # to-do : ASCII ??
                             if words.find(self.myKeyword) == 0:
                                 self.start = 0
+
                             elif words.find(self.myKeyword) > 0:
                                 for i in range(words.find(self.myKeyword), 0, -1):
                                     if i == words.find(self.myKeyword):

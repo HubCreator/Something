@@ -1,3 +1,4 @@
+from operator import eq
 from changeSequence import changeSequence
 from os import curdir, error, memfd_create, stat, terminal_size
 from sys import setrecursionlimit
@@ -199,6 +200,9 @@ class MyLayout(QWidget):
         a = self.sender()
         # print(a.text())
 
+        if self.tmp:
+            self.tmp.clear()
+            
         self.tmp = [""] # tmp is for result of changed data
 
         self.wipeTableData()
@@ -209,47 +213,74 @@ class MyLayout(QWidget):
 
             STATUS_OF_SERIAL_BUTTON = "고유번호 🔽️"
             self.reAppendTable()
-            # self.wipeTableData()
-
-            # print(ROW_SIZE) # 11
-            # print(len(self.list_for_sequence)) # 10
-            # print(len(self.selectedCategory.tmp)) # 10
 
             for i in range(0, len(self.list_for_sequence), 1):
                 for j in range(0, len(self.selectedCategory.sequence_result), 1):
-                    if self.list_for_sequence[i][0] == self.selectedCategory.sequence_result[j]:
+                    if self.selectedCategory.sequence_result[i] == self.list_for_sequence[j][COL_SERIAL_NUMBER]:
                         self.tmp.append(self.list_for_sequence[j])
-            
-            # print(self.tmp)
 
             for r in range(1, ROW_SIZE, 1):
                 for c in range(0, COL_SIZE, 1):
                     if c == 0:
-                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][0])))))
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
                     else:
                         self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
 
-            # a.setText("고유번호 🔽️")
-
-        else:
+        elif a.text() == "고유번호 🔽️":
             self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, False)
 
-            # self.wipeTableData()
             STATUS_OF_SERIAL_BUTTON = "고유번호 🔼️"
             self.reAppendTable()
 
             for i in range(0, len(self.list_for_sequence), 1):
                 for j in range(0, len(self.selectedCategory.sequence_result), 1):
-                    if self.list_for_sequence[i][0] == self.selectedCategory.sequence_result[j]:
+                    if self.selectedCategory.sequence_result[i] == self.list_for_sequence[j][COL_SERIAL_NUMBER]:
                         self.tmp.append(self.list_for_sequence[j])
 
             for r in range(1, ROW_SIZE, 1):
                 for c in range(0, COL_SIZE, 1):
                     if c == 0:
-                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(int(self.tmp[r][c]))))
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
                     else:
                         self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
 
+        elif a.text() == "문장 🔼️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SENTENCE, True)
+
+            STATUS_OF_SENTENCE_BUTTON = "문장 🔽️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_SENTENCE]):
+                        self.tmp.append(self.list_for_sequence[j])
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+
+        elif a.text() == "문장 🔽️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SENTENCE, False)
+
+            STATUS_OF_SENTENCE_BUTTON = "문장 🔼️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_SENTENCE]):
+                        self.tmp.append(self.list_for_sequence[j])
+            
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+        else:
+            pass
             
                 
     def reAppendTable(self):
@@ -258,6 +289,7 @@ class MyLayout(QWidget):
         self.table = None
         self.createTable()
         self.hbMid.addWidget(self.table)
+        self.tmp = []
         self.tmp.clear()
         self.tmp.append("")
         self.wipeTableData()
@@ -354,17 +386,26 @@ class MyLayout(QWidget):
                         else:
                             self.table.setItem(r, COL_ORIGIN, QTableWidgetItem(CURRENT_CONTENTS.sentenceType_origin_result[r][key]["title"]))
 
-
         else:
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
                 if keywords == "문장":
                     key = dic_t[keywords]
+                
                     if "어절" in SELECTED_CATEGORIES:
-                        self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key]))
-                        self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key])
+                        if CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == " ":
+                            self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][1:]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][1:])
+                        else:
+                            self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key])
+
                     else:
-                        self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key]))
-                        self.list_for_data.append(CURRENT_CONTENTS.paragraphType_sentence_result[r][key])
+                        if CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == " ":
+                            self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key][1:]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_sentence_result[r][key][1:])
+                        else:
+                            self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key]))
+                            self.list_for_data.append(CURRENT_CONTENTS.paragraphType_sentence_result[r][key])
 
                 if keywords == "단어":
                     if "어절" in SELECTED_CATEGORIES:

@@ -8,6 +8,9 @@ class changeSequence():
         self.word_list = []
         self.wordBlock_list = []
         self.origin_list = []
+        
+        self.sequence_result = []
+        self.sequence_result.clear()
 
         self.init()
     
@@ -23,7 +26,13 @@ class changeSequence():
         if self.category == 0:
             if self.updown == True:
                 self.sequence_result = sorted(self.serial_number_list, reverse = True)
-
             else:
                 self.sequence_result = sorted(self.serial_number_list, reverse = False)
+        
+        # sentence
+        elif self.category == 1:
+            if self.updown == True:
+                self.sequence_result = sorted(self.sentence_list, reverse = True)
+            else:
+                self.sequence_result = sorted(self.sentence_list, reverse = False)
             
