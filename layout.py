@@ -22,11 +22,11 @@ COL_WORD = 2
 COL_WORDBLOCK = 3
 COL_ORIGIN = 4
 
-STATUS_OF_SERIAL_BUTTON = "고유번호 🔼️"
-STATUS_OF_SENTENCE_BUTTON = "문장 🔼️"
-STATUS_OF_WORD_BUTTON = "단어 🔼️"
-STATUS_OF_WORDBLOCK_BUTTON = "어절 🔼️"
-STATUS_OF_ORIGIN_BUTTON = "출전 🔼️"
+STATUS_OF_SERIAL_BUTTON = "고유번호"
+STATUS_OF_SENTENCE_BUTTON = "문장"
+STATUS_OF_WORD_BUTTON = "단어"
+STATUS_OF_WORDBLOCK_BUTTON = "어절"
+STATUS_OF_ORIGIN_BUTTON = "출전"
 
 class MyLayout(QWidget):
     def __init__(self, parent):
@@ -80,7 +80,7 @@ class MyLayout(QWidget):
 
         self.hbTop.addWidget(self.ln)
         self.hbTop.addWidget(self.btn1)
-        
+
         self.hbMid.addWidget(self.table)
 
         self.hbBot_option_row.addWidget(self.option_row)
@@ -159,6 +159,8 @@ class MyLayout(QWidget):
         self.originButton = QPushButton(STATUS_OF_ORIGIN_BUTTON)
 
         self.tmp = [""] # tmp is for result of changed data
+        self.overloadedIndex = []
+        
 
         self.table.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
         
@@ -184,10 +186,14 @@ class MyLayout(QWidget):
         self.originButton.clicked.connect(self.handleSequence)
 
     def handleSequence(self):
-        global CURRENT_CONTENTS
         global ROW_SIZE
         global COL_SIZE
+
         global COL_SERIAL_NUMBER
+        global COL_SENTENCE
+        global COL_WORD
+        global COL_WORDBLOCK
+        global COL_ORIGIN
 
         global STATUS_OF_SERIAL_BUTTON
         global STATUS_OF_SENTENCE_BUTTON
@@ -198,6 +204,11 @@ class MyLayout(QWidget):
         a = self.sender()
         # print(a.text())
 
+        if self.overloadedIndex:
+            self.overloadedIndex.clear()
+
+        self.overloadedIndex = []
+
         if self.tmp:
             self.tmp.clear()
             
@@ -205,15 +216,19 @@ class MyLayout(QWidget):
 
         self.wipeTableData()
         self.selectedCategory = None
-        if a.text() == "고유번호 🔼️":
+        if a.text() == "고유번호" or a.text() == "고유번호 🔽️":
             # True is up / False is down
-            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, True)
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, False)
 
-            STATUS_OF_SERIAL_BUTTON = "고유번호 🔽️"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호 🔼️"
             self.reAppendTable()
 
-            for i in range(0, len(self.list_for_sequence), 1):
-                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+            for i in range(0, len(self.selectedCategory.sequence_result), 1):
+                for j in range(0, len(self.list_for_sequence), 1):
                     if self.selectedCategory.sequence_result[i] == self.list_for_sequence[j][COL_SERIAL_NUMBER]:
                         self.tmp.append(self.list_for_sequence[j])
 
@@ -224,15 +239,41 @@ class MyLayout(QWidget):
                     else:
                         self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
 
-        elif a.text() == "고유번호 🔽️":
-            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, False)
+        elif a.text() == "고유번호 🔼️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SERIAL_NUMBER, True)
 
-            STATUS_OF_SERIAL_BUTTON = "고유번호 🔼️"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호 🔽️"
             self.reAppendTable()
 
-            for i in range(0, len(self.list_for_sequence), 1):
-                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+            for i in range(0, len(self.selectedCategory.sequence_result), 1):
+                for j in range(0, len(self.list_for_sequence), 1):
                     if self.selectedCategory.sequence_result[i] == self.list_for_sequence[j][COL_SERIAL_NUMBER]:
+                        self.tmp.append(self.list_for_sequence[j])
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+
+        elif a.text() == "문장" or a.text() == "문장 🔽️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SENTENCE, False)
+
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장 🔼️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.selectedCategory.sequence_result), 1):
+                for j in range(0, len(self.list_for_sequence), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_SENTENCE]):
                         self.tmp.append(self.list_for_sequence[j])
 
             for r in range(1, ROW_SIZE, 1):
@@ -245,29 +286,15 @@ class MyLayout(QWidget):
         elif a.text() == "문장 🔼️":
             self.selectedCategory = changeSequence(self.list_for_sequence, COL_SENTENCE, True)
 
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
             STATUS_OF_SENTENCE_BUTTON = "문장 🔽️"
             self.reAppendTable()
 
-            for i in range(0, len(self.list_for_sequence), 1):
-                for j in range(0, len(self.selectedCategory.sequence_result), 1):
-                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_SENTENCE]):
-                        self.tmp.append(self.list_for_sequence[j])
-
-            for r in range(1, ROW_SIZE, 1):
-                for c in range(0, COL_SIZE, 1):
-                    if c == 0:
-                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
-                    else:
-                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
-
-        elif a.text() == "문장 🔽️":
-            self.selectedCategory = changeSequence(self.list_for_sequence, COL_SENTENCE, False)
-
-            STATUS_OF_SENTENCE_BUTTON = "문장 🔼️"
-            self.reAppendTable()
-
-            for i in range(0, len(self.list_for_sequence), 1):
-                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+            for i in range(0, len(self.selectedCategory.sequence_result), 1):
+                for j in range(0, len(self.list_for_sequence), 1):
                     if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_SENTENCE]):
                         self.tmp.append(self.list_for_sequence[j])
             
@@ -277,8 +304,175 @@ class MyLayout(QWidget):
                         self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
                     else:
                         self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
-        else:
-            pass
+
+        elif a.text() == "단어" or a.text() == "단어 🔽️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_WORD, False)
+            
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어 🔼️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_WORD]):
+                        if j in self.overloadedIndex:
+                            continue
+                        else:
+                            self.tmp.append(self.list_for_sequence[j])
+                            self.overloadedIndex.append(j)
+
+
+            # print(self.tmp)
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        if self.tmp[r][c] == "":
+                            self.table.setItem(r, c, QTableWidgetItem(""))
+
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+        
+        elif a.text() == "단어 🔼️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_WORD, True)
+
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어 🔽️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_WORD]):
+                        if j in self.overloadedIndex:
+                            continue
+                        else:
+                            self.tmp.append(self.list_for_sequence[j])
+                            self.overloadedIndex.append(j)
+            
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        if self.tmp[r][c] == "":
+                            self.table.setItem(r, c, QTableWidgetItem(""))
+
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+
+        
+        elif a.text() == "어절" or a.text() == "어절 🔽️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_WORDBLOCK, False)
+            
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절 🔼️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_WORDBLOCK]):
+                        if j in self.overloadedIndex:
+                            continue
+                        else:
+                            self.tmp.append(self.list_for_sequence[j])
+                            self.overloadedIndex.append(j)
+
+
+            # print(self.tmp)
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+        
+        elif a.text() == "어절 🔼️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_WORDBLOCK, True)
+
+            STATUS_OF_ORIGIN_BUTTON = "출전"
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절 🔽️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_WORDBLOCK]):
+                        if j in self.overloadedIndex:
+                            continue
+                        else:
+                            self.tmp.append(self.list_for_sequence[j])
+                            self.overloadedIndex.append(j)
+            
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+        
+        elif a.text() == "출전" or a.text() == "출전 🔽️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_ORIGIN, False)
+            
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전 🔼️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_ORIGIN]):
+                        if j in self.overloadedIndex:
+                            continue
+                        else:
+                            self.tmp.append(self.list_for_sequence[j])
+                            self.overloadedIndex.append(j)
+
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
+        
+        elif a.text() == "출전 🔼️":
+            self.selectedCategory = changeSequence(self.list_for_sequence, COL_ORIGIN, True)
+
+            STATUS_OF_SERIAL_BUTTON = "고유번호"
+            STATUS_OF_SENTENCE_BUTTON = "문장"
+            STATUS_OF_WORD_BUTTON = "단어"
+            STATUS_OF_WORDBLOCK_BUTTON = "어절"
+            STATUS_OF_ORIGIN_BUTTON = "출전 🔽️"
+            self.reAppendTable()
+
+            for i in range(0, len(self.list_for_sequence), 1):
+                for j in range(0, len(self.selectedCategory.sequence_result), 1):
+                    if eq(self.selectedCategory.sequence_result[i], self.list_for_sequence[j][COL_ORIGIN]):
+                        if j in self.overloadedIndex:
+                            continue
+                        else:
+                            self.tmp.append(self.list_for_sequence[j])
+                            self.overloadedIndex.append(j)
+            
+            for r in range(1, ROW_SIZE, 1):
+                for c in range(0, COL_SIZE, 1):
+                    if c == 0:
+                        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(str("{0}".format(int(self.tmp[r][COL_SERIAL_NUMBER])))))
+                    else:
+                        self.table.setItem(r, c, QTableWidgetItem(self.tmp[r][c]))
             
                 
     def reAppendTable(self):

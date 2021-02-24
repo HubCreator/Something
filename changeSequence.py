@@ -35,4 +35,23 @@ class changeSequence():
                 self.sequence_result = sorted(self.sentence_list, reverse = True)
             else:
                 self.sequence_result = sorted(self.sentence_list, reverse = False)
-            
+
+        # word
+        elif self.category == 2:
+            if self.updown == True:
+                self.sequence_result = sorted(self.word_list, reverse = True)
+            else:
+                self.sequence_result = sorted(self.word_list, reverse = False)
+        # wordBlock
+        elif self.category == 3:
+            if self.updown == True:
+                self.sequence_result = sorted(self.wordBlock_list, reverse = True)
+            else:
+                self.sequence_result = sorted(self.wordBlock_list, reverse = False)
+        
+        # origin
+        elif self.category == 4:
+            if self.updown == True:
+                self.sequence_result = sorted(self.origin_list, reverse = True)
+            else:
+                self.sequence_result = sorted(self.origin_list, reverse = False)
