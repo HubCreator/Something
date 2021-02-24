@@ -32,7 +32,6 @@ class MyLayout(QWidget):
     def __init__(self, parent):
         super(MyLayout, self).__init__(parent)
         self.parent = parent
-        # self.list_for_sequence = []
         
         self.initLayout()
 
@@ -46,7 +45,6 @@ class MyLayout(QWidget):
         self.hbBot_option = QHBoxLayout()
         self.hbBot_option_row = QHBoxLayout()
         self.hbBot_option_category = QHBoxLayout()
-        self.hbBot_input = QHBoxLayout()
 
         self.vb.addLayout(self.hbTop)
         self.vb.addLayout(self.hbMid)
@@ -54,13 +52,11 @@ class MyLayout(QWidget):
         self.hbBot_option.addLayout(self.hbBot_option_row)
         self.hbBot_option.addStretch()
         self.hbBot_option.addLayout(self.hbBot_option_category)
-        self.hbBot.addLayout(self.hbBot_input)
         self.vb.addLayout(self.hbBot)
 
-        self.lbl = QLabel("검색할 어절을 입력하세요")
-        self.createTable()
         self.ln = QLineEdit()           # input words
         self.btn1 = QPushButton("검색")
+        self.createTable()
 
         self.option_row = QComboBox(self)
         self.option_row.addItem("10")
@@ -82,7 +78,9 @@ class MyLayout(QWidget):
         self.category_checkBox4 = QCheckBox("출전", self)
         self.category_checkBox4.setChecked(True)
 
-        self.hbTop.addWidget(self.lbl)
+        self.hbTop.addWidget(self.ln)
+        self.hbTop.addWidget(self.btn1)
+        
         self.hbMid.addWidget(self.table)
 
         self.hbBot_option_row.addWidget(self.option_row)
@@ -90,8 +88,6 @@ class MyLayout(QWidget):
         self.hbBot_option_category.addWidget(self.category_checkBox2)
         self.hbBot_option_category.addWidget(self.category_checkBox3)
         self.hbBot_option_category.addWidget(self.category_checkBox4)
-        self.hbBot_input.addWidget(self.ln)
-        self.hbBot_input.addWidget(self.btn1)
 
         self.option_row.activated[str].connect(self.onOptionRowActivated)
         self.btn1.clicked.connect(self.searchData)
@@ -161,6 +157,8 @@ class MyLayout(QWidget):
         self.wordButton = QPushButton(STATUS_OF_WORD_BUTTON)
         self.wordBlockButton = QPushButton(STATUS_OF_WORDBLOCK_BUTTON)
         self.originButton = QPushButton(STATUS_OF_ORIGIN_BUTTON)
+
+        self.tmp = [""] # tmp is for result of changed data
 
         self.table.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignCenter)
         
