@@ -17,7 +17,10 @@ class changeSequence():
     def init(self):
         for i in range(0, len(self.data), 1):
             self.serial_number_list.append(self.data[i][0])
-            self.sentence_list.append(self.data[i][1])
+            if self.data[i][1][0] == '“' or self.data[i][1][0] == '‘' or self.data[i][1][0] == '[' or self.data[i][1][0] == '.' or self.data[i][1][0] == '“' or self.data[i][1][0] == ' ' or self.data[i][1][0] == '' or self.data[i][1][0] == '"':
+                self.sentence_list.append(self.data[i][1][1:])
+            else:
+                self.sentence_list.append(self.data[i][1])
             self.word_list.append(self.data[i][2])
             self.wordBlock_list.append(self.data[i][3])
             self.origin_list.append(self.data[i][4])

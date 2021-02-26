@@ -616,7 +616,7 @@ class MyLayout(QWidget):
                     key = dic_t[keywords]
                 
                     if "어절" in SELECTED_CATEGORIES:
-                        if CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == " ":
+                        if CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == " " or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '"':
                             self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][1:]))
                             self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][1:])
                         else:
