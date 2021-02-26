@@ -1,10 +1,30 @@
 from os import error
 import numpy as np
+import os
 import json
 
 class Parsing():
     def __init__(self, dataFile, keyword):
-        self.file = dataFile
+        # self.file = dataFile
+        print(dataFile)
+
+        self.files = []
+        self.type = 0
+        self.path_to_json = ""
+
+        if "json" in dataFile[0]:
+            for i in range(0, len(dataFile), 1):
+                self.file = dataFile[i][dataFile[i].find("languageData") : ]
+                self.files.append(self.file)
+                self.type = 1
+        else:
+            self.path_to_json = dataFile[0]
+            self.json_files = [self.pos_json for self.pos_json in os.listdir(self.path_to_json) if self.pos_json.endswith('.json')]
+            # print(os.listdir(self.path_to_json))
+            print(self.json_files)
+            self.type = 2
+        
+        # print(self.json_files) 
 
         self.fileType = None    # True == sentenceType / False == paragraphType
         
@@ -34,8 +54,10 @@ class Parsing():
         self.paragraphType_soundBlock_result_count = 0
         self.paragraphType_word_result_count = 0
 
-
-        self.initParsing(keyword)
+        if self.type == 1:
+            self.initParsing(keyword)
+        elif self.type == 2:
+            pass
         
     def initParsing(self, keyword):
         with open(self.file) as f: # 딕셔너리

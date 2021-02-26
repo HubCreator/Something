@@ -1,14 +1,17 @@
+# import pickle
+import xlsxwriter
 from operator import eq
 from changeSequence import changeSequence
 from os import curdir, error, memfd_create, stat, terminal_size
 from sys import setrecursionlimit
 
+from PyQt5.QtGui import QKeySequence
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from parsing import Parsing
 from PyQt5.QtCore import  Qt
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QShortcut, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 COL_SIZE = 5
 ROW_SIZE = 11
@@ -32,8 +35,17 @@ class MyLayout(QWidget):
     def __init__(self, parent):
         super(MyLayout, self).__init__(parent)
         self.parent = parent
+
+        self.shortcut_save = QShortcut(QKeySequence.Save, self)
+        self.shortcut_enter = QShortcut(QKeySequence('Enter'), self)
+        self.shortcut_return = QShortcut(QKeySequence('Return'), self)
+
+        self.shortcut_save.activated.connect(self.printHi)
+        self.shortcut_enter.activated.connect(self.searchData)
+        self.shortcut_return.activated.connect(self.searchData)
         
         self.initLayout()
+
 
     def initLayout(self):
         self.vb = QVBoxLayout()
@@ -96,9 +108,20 @@ class MyLayout(QWidget):
         self.category_checkBox3.stateChanged.connect(self.onCheckBox1_checked)
         self.category_checkBox4.stateChanged.connect(self.onCheckBox1_checked)
 
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Enter or e.key() == Qt.Key_Return:
-            self.searchData()
+
+    def printHi(self):
+        print("hi")
+
+
+    # def exporter(self, filename = None):
+    #     if not filename:
+    #         filename = QtGui.QFileDialog.getSaveFileName(self, 'Save File'," "'.xlsx','(*.xlsx)')
+
+    #     if filename:
+    #         wb = xlsxwriter.Workbook(filename)
+    #         self.sheetBook = wb.add_worksheet()
+    #         self.export()
+    #         wb.close()
         
 
     def onCheckBox1_checked(self, state):
@@ -108,7 +131,6 @@ class MyLayout(QWidget):
         if state == Qt.Checked:
             SELECTED_CATEGORIES.append(a.text())
         else:
-            print("unChecked")
             SELECTED_CATEGORIES.remove(a.text())
         
 
@@ -157,6 +179,16 @@ class MyLayout(QWidget):
         self.wordButton = QPushButton(STATUS_OF_WORD_BUTTON)
         self.wordBlockButton = QPushButton(STATUS_OF_WORDBLOCK_BUTTON)
         self.originButton = QPushButton(STATUS_OF_ORIGIN_BUTTON)
+
+        # try:
+        #     fp = open("out.txt", "rb")
+        #     for r in range(ROW_SIZE):
+        #         for c in range(COL_SIZE):
+        #             self.table.setItem(r, c, QTableWidgetItem(str(pickle.load(fp))))
+            
+        #     fp.close()
+        
+
 
         self.tmp = [""] # tmp is for result of changed data
         self.overloadedIndex = []
@@ -644,7 +676,7 @@ class MyLayout(QWidget):
         global SEARCH_ALL
 
         CURRENT_CONTENTS = None
-        CURRENT_CONTENTS = Parsing(self.parent.myObjectFile, self.ln.text())
+        CURRENT_CONTENTS = Parsing(self.parent.myObject, self.ln.text())
 
         self.wipeTableData()
         self.list_for_sequence = []
