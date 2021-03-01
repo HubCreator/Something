@@ -1,5 +1,4 @@
-# import pickle
-import xlsxwriter
+import pandas as pd
 from operator import eq
 from changeSequence import changeSequence
 from os import curdir, error, memfd_create, stat, terminal_size
@@ -11,7 +10,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from parsing import Parsing
 from PyQt5.QtCore import  Qt
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QShortcut, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QPushButton, QShortcut, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
 
 COL_SIZE = 5
 ROW_SIZE = 11
@@ -37,12 +36,17 @@ class MyLayout(QWidget):
         self.parent = parent
 
         self.shortcut_save = QShortcut(QKeySequence.Save, self)
+        self.shortcut_save_as = QShortcut(QKeySequence.SaveAs, self)
         self.shortcut_enter = QShortcut(QKeySequence('Enter'), self)
         self.shortcut_return = QShortcut(QKeySequence('Return'), self)
 
-        self.shortcut_save.activated.connect(self.printHi)
+        self.shortcut_save.activated.connect(self.handleSave)
+        self.shortcut_save_as.activated.connect(self.handleSaveAs)
         self.shortcut_enter.activated.connect(self.searchData)
         self.shortcut_return.activated.connect(self.searchData)
+
+        self.output_fileName = None
+        self.searchKeyWord = ""
         
         self.initLayout()
 
@@ -109,20 +113,40 @@ class MyLayout(QWidget):
         self.category_checkBox4.stateChanged.connect(self.onCheckBox1_checked)
 
 
-    def printHi(self):
-        print("hi")
+    def handleSaveAs(self):
+        if self.searchKeyWord == "":
+            return
+        else:
+            self.output_fileName, okPressed = QInputDialog.getText(self, "다른 이름으로 저장", "파일 이름을 입력하세요", QLineEdit.Normal, "")
+            if okPressed and self.output_fileName != '':
+                df = pd.DataFrame(self.list_for_sequence)
+                writer = pd.ExcelWriter(str(self.output_fileName)+".xlsx", engine='xlsxwriter')
+                df.to_excel(writer, sheet_name='Sheet1')
+                writer.close()
+            self.message = self.message + "   (저장 완료..)"
+            self.parent.myStatusBar.showMessage(self.message)
 
 
-    # def exporter(self, filename = None):
-    #     if not filename:
-    #         filename = QtGui.QFileDialog.getSaveFileName(self, 'Save File'," "'.xlsx','(*.xlsx)')
+    def handleSave(self):
+        if self.searchKeyWord == "":
+            return
+        else:
+            if self.output_fileName == None:
+                self.output_fileName, okPressed = QInputDialog.getText(self, "새로운 파일 저장", "파일 이름을 입력하세요", QLineEdit.Normal, "")
+                if okPressed and self.output_fileName != '':
+                    df = pd.DataFrame(self.list_for_sequence)
+                    writer = pd.ExcelWriter(str(self.output_fileName)+".xlsx", engine='xlsxwriter')
+                    df.to_excel(writer, sheet_name='Sheet1')
+                    writer.close()
+            elif self.output_fileName != None:
+                df = pd.DataFrame(self.list_for_sequence)
+                writer = pd.ExcelWriter(str(self.output_fileName)+".xlsx", engine='xlsxwriter')
+                df.to_excel(writer, sheet_name='Sheet1')
+                writer.close()
 
-    #     if filename:
-    #         wb = xlsxwriter.Workbook(filename)
-    #         self.sheetBook = wb.add_worksheet()
-    #         self.export()
-    #         wb.close()
-        
+            self.message = self.message + "   (저장 완료..)"
+            self.parent.myStatusBar.showMessage(self.message)
+
 
     def onCheckBox1_checked(self, state):
         global SELECTED_CATEGORIES
@@ -179,15 +203,6 @@ class MyLayout(QWidget):
         self.wordButton = QPushButton(STATUS_OF_WORD_BUTTON)
         self.wordBlockButton = QPushButton(STATUS_OF_WORDBLOCK_BUTTON)
         self.originButton = QPushButton(STATUS_OF_ORIGIN_BUTTON)
-
-        # try:
-        #     fp = open("out.txt", "rb")
-        #     for r in range(ROW_SIZE):
-        #         for c in range(COL_SIZE):
-        #             self.table.setItem(r, c, QTableWidgetItem(str(pickle.load(fp))))
-            
-        #     fp.close()
-        
 
 
         self.tmp = [""] # tmp is for result of changed data
@@ -263,7 +278,8 @@ class MyLayout(QWidget):
                 for j in range(0, len(self.list_for_sequence), 1):
                     if self.selectedCategory.sequence_result[i] == self.list_for_sequence[j][COL_SERIAL_NUMBER]:
                         self.tmp.append(self.list_for_sequence[j])
-
+            
+            
             for r in range(1, ROW_SIZE, 1):
                 for c in range(0, COL_SIZE, 1):
                     if c == 0:
@@ -678,6 +694,7 @@ class MyLayout(QWidget):
         CURRENT_CONTENTS = None
         CURRENT_CONTENTS = Parsing(self.parent.myObject, self.ln.text())
 
+        self.searchKeyWord = self.ln.text()
         self.wipeTableData()
         self.list_for_sequence = []
         self.list_for_sequence.clear()

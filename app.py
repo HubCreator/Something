@@ -70,13 +70,13 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
         elif answer == QMessageBox.No:
             QCloseEvent.ignore()
 
-    def getOpenFilesAndDirs(parent=None, caption='', directory='', filter='', initialFilter='', options=None):
-        def updateText():
-            # update the contents of the line edit widget with the selected files
-            selected = []
-            for index in view.selectionModel().selectedRows():
-                selected.append('"{}"'.format(index.data()))
-            lineEdit.setText(' '.join(selected))
+    def getOpenFilesAndDirs(parent=None, caption='파일 혹은 폴더 지정', directory='', filter='*.json', initialFilter='', options=None):
+        # def updateText():
+        #     # update the contents of the line edit widget with the selected files
+        #     selected = []
+        #     for index in view.selectionModel().selectedRows():
+        #         selected.append('"{}"'.format(index.data()))
+        #     lineEdit.setText(' '.join(selected))
 
         dialog = QtWidgets.QFileDialog(parent, windowTitle=caption)
         dialog.setFileMode(dialog.ExistingFiles)
@@ -103,11 +103,11 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
         # viewMode is set to QFileDialog.Details, which is not this case
         stackedWidget = dialog.findChild(QtWidgets.QStackedWidget)
         view = stackedWidget.findChild(QtWidgets.QListView)
-        view.selectionModel().selectionChanged.connect(updateText)
+        # view.selectionModel().selectionChanged.connect(updateText)
 
-        lineEdit = dialog.findChild(QtWidgets.QLineEdit)
+        # lineEdit = dialog.findChild(QtWidgets.QLineEdit)
         # clear the line edit contents whenever the current directory changes
-        dialog.directoryEntered.connect(lambda: lineEdit.setText(''))
+        # dialog.directoryEntered.connect(lambda: lineEdit.setText(''))
 
         dialog.exec_()
         return dialog.selectedFiles()

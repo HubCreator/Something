@@ -155,7 +155,7 @@ class Parsing():
 
         for index, js in enumerate(self.json_files):
             with open(os.path.join(self.path_to_json, js)) as json_file:
-                if cnt >= 1000:
+                if cnt > 1000:
                     break
                 # print(json_file)
                 cnt += 1
