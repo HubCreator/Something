@@ -82,6 +82,9 @@ class MyLayout(QWidget):
         self.option_row.addItem("30")
         self.option_row.addItem("모두_출력")
 
+        self.show_previous = QPushButton("◀️")
+        self.show_next = QPushButton("▶️")
+
         self.category_checkBox1 = QCheckBox("문장", self)
         self.category_checkBox1.setChecked(True)
 
@@ -100,18 +103,27 @@ class MyLayout(QWidget):
         self.hbMid.addWidget(self.table)
 
         self.hbBot_option_row.addWidget(self.option_row)
+        self.hbBot_option_row.addWidget(self.show_previous)
+        self.hbBot_option_row.addWidget(self.show_next)
         self.hbBot_option_category.addWidget(self.category_checkBox1)
         self.hbBot_option_category.addWidget(self.category_checkBox2)
         self.hbBot_option_category.addWidget(self.category_checkBox3)
         self.hbBot_option_category.addWidget(self.category_checkBox4)
 
         self.option_row.activated[str].connect(self.onOptionRowActivated)
+        self.show_previous.clicked.connect(self.handleShowPrevious)
+        self.show_next.clicked.connect(self.handleShowNext)
         self.btn1.clicked.connect(self.searchData)
         self.category_checkBox1.stateChanged.connect(self.onCheckBox1_checked)
         self.category_checkBox2.stateChanged.connect(self.onCheckBox1_checked)
         self.category_checkBox3.stateChanged.connect(self.onCheckBox1_checked)
         self.category_checkBox4.stateChanged.connect(self.onCheckBox1_checked)
 
+    def handleShowPrevious(self):
+        print("previous one")
+
+    def handleShowNext(self):
+        print("Next one")
 
     def handleSaveAs(self):
         if self.searchKeyWord == "":
@@ -587,8 +599,8 @@ class MyLayout(QWidget):
         self.list_for_data = []
         self.list_for_data.clear()
 
-        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem("{0}".format(r)))
-        self.list_for_data.append(r)
+        self.table.setItem(r, COL_SERIAL_NUMBER, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_serial_number[r]))
+        self.list_for_data.append(CURRENT_CONTENTS.paragraphType_serial_number[r])
 
         if type == True:
             for keywords in SELECTED_CATEGORIES:    # 어쨌든 for문이 2번 돌아가는 거 아닌가..?
@@ -632,7 +644,7 @@ class MyLayout(QWidget):
                     key = dic_t[keywords]
                 
                     if "어절" in SELECTED_CATEGORIES:
-                        if CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == " " or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '"':
+                        if CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == " " or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == "" or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '"' or CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][0] == '…':
                             self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][1:]))
                             self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key][1:])
                         else:
@@ -640,7 +652,7 @@ class MyLayout(QWidget):
                             self.list_for_data.append(CURRENT_CONTENTS.paragraphType_soundBlockChecked_sentence_result[r][key])
 
                     else:
-                        if CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == " ":
+                        if CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == '“' or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "‘" or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "[" or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "." or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == " " or CURRENT_CONTENTS.paragraphType_sentence_result[r][key][0] == "…":
                             self.table.setItem(r, COL_SENTENCE, QTableWidgetItem(CURRENT_CONTENTS.paragraphType_sentence_result[r][key][1:]))
                             self.list_for_data.append(CURRENT_CONTENTS.paragraphType_sentence_result[r][key][1:])
                         else:

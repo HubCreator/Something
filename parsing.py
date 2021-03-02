@@ -5,25 +5,30 @@ import json
 
 class Parsing():
     def __init__(self, dataFile, keyword):
-        # self.file = dataFile
-        print(dataFile)
-
         self.files = []
         self.json_files = []
         self.type = 0
-        # self.path_to_json = ""
 
-        if "json" in dataFile[0]:
+        if "json" in dataFile[0]:   # json 파일 하나만 선택했을 때
             for i in range(0, len(dataFile), 1):
                 self.file = dataFile[i][dataFile[i].find("languageData") : ]
                 self.files.append(self.file)
                 self.type = 1
-        else:
+        else:                       # json 파일 여러개 혹은 폴더를 선택했을 때
             self.path_to_json = dataFile[0]
             self.json_files = [self.pos_json for self.pos_json in os.listdir(self.path_to_json) if self.pos_json.endswith('.json')]
+
+            self.sorted_json_files = sorted(self.json_files)    # 정렬
+            self.pages = []
+            for i in range(0, int(len(self.sorted_json_files) / 15) , 1):
+                tmp = []
+                tmp.clear()
+                for j in range(0, 15, 1):
+                    tmp.append(self.sorted_json_files[j + (i*15)])
+                self.pages.append(tmp)  # 선택한 폴더 안의 파일을 15개씩 리스트에 차례로 저장
+
             self.type = 2
         
-        # print(self.json_files) 
 
         self.fileType = None    # True == sentenceType / False == paragraphType
         
@@ -40,6 +45,7 @@ class Parsing():
 
 
 
+        self.paragraphType_serial_number = ["0"]
         self.paragraphType_soundBlock_result = [""]                   # 어절
         self.paragraphType_word_result = [""]                         # 단어
         self.paragraphType_word_result_with_soundBlock = [""]         # 단어 (어절이 체크되어 있을 때)
@@ -50,6 +56,7 @@ class Parsing():
 
         self.paragraphType_separated_sentence_result = [""]
 
+        self.paragraphType_serial_number_count = 0
         self.paragraphType_soundBlock_result_count = 0
         self.paragraphType_word_result_count = 0
 
@@ -58,7 +65,7 @@ class Parsing():
         elif self.type == 2:
             self.initParsing2(keyword)
         
-    def initParsing1(self, keyword):
+    def initParsing1(self, keyword): # 하나의 파일만 선택했을 때
         with open(self.file) as f: # 딕셔너리
             data = json.load(f)
 
@@ -147,17 +154,13 @@ class Parsing():
 
         f.close()
 
-    def initParsing2(self, keyword):
-        # with open(self.file) as f: # 딕셔너리
-        #     data = json.load(f)
-
+    def initParsing2(self, keyword): # 여러개의 파일이나 폴더를 선택했을 때
         cnt = 0
-
-        for index, js in enumerate(self.json_files):
+        # to-do : self.pages 리스트를 이용해 15개씩 파일을 쪼개서 검색
+        for index, js in enumerate(self.pages[0]):  # self.json_files는 전체 파일 리스트
             with open(os.path.join(self.path_to_json, js)) as json_file:
                 if cnt > 1000:
                     break
-                # print(json_file)
                 cnt += 1
                 data = json.load(json_file)
         
@@ -197,6 +200,19 @@ class Parsing():
                         for lines in page:
                             words = lines["form"]   # words는 문장이 아닌 Paragraph..  문장 덩어리
                             if words[words.find(self.myKeyword) : words.find(self.myKeyword) + len(self.myKeyword)] == self.myKeyword:
+                                self.paragraphType_serial_number_count += 1                         # 어절 count
+                                if self.paragraphType_serial_number_count < 10:
+                                    self.paragraphType_serial_number.append("0000{}".format(self.paragraphType_serial_number_count))
+                                elif self.paragraphType_serial_number_count >= 10 and self.paragraphType_serial_number_count < 100:
+                                    self.paragraphType_serial_number.append("000{}".format(self.paragraphType_serial_number_count))
+                                elif self.paragraphType_serial_number_count >= 100 and self.paragraphType_serial_number_count < 1000:
+                                    self.paragraphType_serial_number.append("00{}".format(self.paragraphType_serial_number_count))
+                                elif self.paragraphType_serial_number_count >= 1000 and self.paragraphType_serial_number_count < 10000:
+                                    self.paragraphType_serial_number.append("0{}".format(self.paragraphType_serial_number_count))
+                                elif self.paragraphType_serial_number_count >= 10000 and self.paragraphType_serial_number_count < 100000:
+                                    self.paragraphType_serial_number.append("{}".format(self.paragraphType_serial_number_count))
+
+
                                 self.paragraphType_soundBlock_result_count += 1                         # 어절 count
                                 
                                 self.paragraphType_soundBlockChecked_sentence_result.append(lines)      # 문장

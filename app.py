@@ -24,8 +24,7 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
         self.show()
 
         # self.open_dialog_box()
-        self.myObject = self.getOpenFilesAndDirs()
-        # print(self.myObject)
+        self.myObject = self.getOpenFilesAndDirs() # selected files are in the self.myObject
 
 
     def makeMenuBar(self):
@@ -55,14 +54,6 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
         # self.open_dialog_box()
         self.getOpenFilesAndDirs()
 
-    # def open_dialog_box(self):
-    #     self.filename = QFileDialog.getOpenFileNames()
-    #     self.path = self.filename[0]
-    #     print(self.path)
-    #     self.dataFile = "languageData"
-    #     self.ext = ".json"
-    #     self.myObjectFile = self.path[self.path.find(self.dataFile) : self.path.find(self.ext) + len(self.ext)]
-
     def closeEvent(self, QCloseEvent):
         answer = QMessageBox.question(self, '종료 확인', '종료하시겠습니까??', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if answer == QMessageBox.Yes:
@@ -71,13 +62,6 @@ class MyApp(QMainWindow):                       # QMainWindow 클래스 상속
             QCloseEvent.ignore()
 
     def getOpenFilesAndDirs(parent=None, caption='파일 혹은 폴더 지정', directory='', filter='*.json', initialFilter='', options=None):
-        # def updateText():
-        #     # update the contents of the line edit widget with the selected files
-        #     selected = []
-        #     for index in view.selectionModel().selectedRows():
-        #         selected.append('"{}"'.format(index.data()))
-        #     lineEdit.setText(' '.join(selected))
-
         dialog = QtWidgets.QFileDialog(parent, windowTitle=caption)
         dialog.setFileMode(dialog.ExistingFiles)
         if options:
